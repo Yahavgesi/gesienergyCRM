@@ -7,7 +7,7 @@ import FormModal from "./FormModal";
 import { 
   DollarSign, TrendingUp, TrendingDown, Plus, 
   CheckCircle2, Clock, Package, Wrench, FileText, 
-  Truck, Users, AlertCircle, Edit, Trash2 
+  Truck, Users, AlertCircle, Edit, Trash2, Zap
 } from "lucide-react";
 
 const categoryIcons = {
