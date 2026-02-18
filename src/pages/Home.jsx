@@ -13,18 +13,23 @@ export default function Home() {
 
   useEffect(() => {
     const init = async () => {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        const me = await base44.auth.me();
-        setUser(me);
-        // Auto-redirect based on role
-        if (me.role === "admin" || me.role === "manager" || me.role === "sales_agent" || me.role === "office" || me.role === "finance" || me.role === "installer") {
-          navigate(createPageUrl("CrmDashboard"));
-        } else {
-          navigate(createPageUrl("CustomerHome"));
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          const me = await base44.auth.me();
+          setUser(me);
+          // Auto-redirect based on role
+          if (me.role === "admin" || me.role === "manager" || me.role === "sales_agent" || me.role === "office" || me.role === "finance" || me.role === "installer") {
+            navigate(createPageUrl("CrmDashboard"));
+          } else {
+            navigate(createPageUrl("CustomerHome"));
+          }
         }
+      } catch (error) {
+        console.error('Auth error:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     init();
   }, [navigate]);
