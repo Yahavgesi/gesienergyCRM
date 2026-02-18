@@ -93,7 +93,7 @@ export default function CrmContacts() {
           columns={columns}
           data={filtered}
           emptyMessage="אין אנשי קשר עדיין"
-          onRowClick={(contact) => navigate(createPageUrl(`ContactCard/${contact.id}`))}
+          onRowClick={(contact) => navigate(createPageUrl(`ContactCard?id=${contact.id}`))}
         />
       )}
 
