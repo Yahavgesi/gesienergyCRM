@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Edit, Phone, Mail, MapPin, Building2, ExternalLink } from "lucide-react";
+import { ArrowRight, Edit, Phone, Mail, MapPin, Building2, ExternalLink, FileText, User, Briefcase } from "lucide-react";
 import { createPageUrl } from "../utils";
 import StatusBadge from "../components/shared/StatusBadge";
 import FormModal from "../components/crm/FormModal";
@@ -14,6 +14,8 @@ import TasksPanel from "../components/crm/TasksPanel";
 import FilesPanel from "../components/crm/FilesPanel";
 import DocumentsPanel from "../components/crm/DocumentsPanel";
 import PaymentsPanel from "../components/crm/PaymentsPanel";
+import ContractModal from "../components/crm/ContractModal";
+import { toast } from "sonner";
 
 export default function ContactCard() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -24,6 +26,7 @@ export default function ContactCard() {
   const [editData, setEditData] = useState({});
   const [projectOpen, setProjectOpen] = useState(false);
   const [projectData, setProjectData] = useState({});
+  const [contractOpen, setContractOpen] = useState(false);
 
   const { data: contact, isLoading } = useQuery({
     queryKey: ['contact', id],
@@ -52,6 +55,13 @@ export default function ContactCard() {
     queryKey: ['projects', 'contact', id],
     queryFn: () => base44.entities.Project.filter({ customer_id: id }),
     enabled: !!id,
+  });
+
+  const { data: documents = [] } = useQuery({
+    queryKey: ['documents', 'contact', id],
+    queryFn: () => base44.entities.Document.filter({ contact_id: id }, '-created_date'),
+    enabled: !!id,
+    initialData: [],
   });
 
   const updateMutation = useMutation({
@@ -96,6 +106,45 @@ export default function ContactCard() {
     onSuccess: (project) => {
       queryClient.invalidateQueries(['projects']);
       navigate(createPageUrl(`ProjectCard/${project.id}`));
+    },
+  });
+
+  const createContractMutation = useMutation({
+    mutationFn: async (contractData) => {
+      // Create document with contract data
+      const document = await base44.entities.Document.create({
+        title: `הסכם התקנה - ${contact.full_name}`,
+        contact_id: id,
+        customer_email: contact.email || contact.user_email,
+        category: 'contract',
+        status: 'pending_signature',
+        deposit_amount: parseFloat(contractData.deposit_amount),
+        template_data: {
+          customer_name: contact.full_name,
+          customer_id_number: contact.id_number,
+          customer_phone: contact.phone,
+          customer_email: contact.email || contact.user_email,
+          customer_address: contact.address,
+          ...contractData
+        },
+        required_signers: [contact.email || contact.user_email]
+      });
+
+      // Log activity
+      await base44.entities.ActivityLog.create({
+        entity_type: 'contact',
+        entity_id: id,
+        action_type: 'document_sent',
+        description: `הסכם התקנה נוצר ונשלח לחתימה - מקדמה: ₪${contractData.deposit_amount}`
+      });
+
+      return document;
+    },
+    onSuccess: (document) => {
+      queryClient.invalidateQueries(['documents']);
+      queryClient.invalidateQueries(['activities']);
+      setContractOpen(false);
+      toast.success('הסכם נוצר בהצלחה ונשלח לחתימה דיגיטלית');
     },
   });
 
@@ -149,9 +198,14 @@ export default function ContactCard() {
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button onClick={() => { setProjectData({}); setProjectOpen(true); }} className="bg-[#2dd4a8] hover:bg-[#1fa882]">
-              + פרויקט חדש
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setContractOpen(true)} style={{ background: 'linear-gradient(135deg, #2dd4a8, #1fa882)' }}>
+              <FileText className="w-4 h-4 ml-2" />
+              הסכם חדש
+            </Button>
+            <Button onClick={() => { setProjectData({}); setProjectOpen(true); }} className="bg-blue-600 hover:bg-blue-700">
+              <Briefcase className="w-4 h-4 ml-2" />
+              פרויקט חדש
             </Button>
             <Button variant="outline" onClick={() => { setEditData(contact); setEditOpen(true); }} className="border-gray-600">
               <Edit className="w-4 h-4 ml-2" />
@@ -175,9 +229,45 @@ export default function ContactCard() {
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Quick Stats */}
+              <div className="gesi-card p-4 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-[#2dd4a8]/20 flex items-center justify-center">
+                  <Briefcase className="w-6 h-6 text-[#2dd4a8]" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{projects.length}</p>
+                  <p className="text-xs text-gray-400">פרויקטים</p>
+                </div>
+              </div>
+              
+              <div className="gesi-card p-4 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{documents.length}</p>
+                  <p className="text-xs text-gray-400">מסמכים</p>
+                </div>
+              </div>
+
+              <div className="gesi-card p-4 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <User className="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">{contact.status === 'active' ? 'פעיל' : contact.status === 'vip' ? 'VIP' : 'לא פעיל'}</p>
+                  <p className="text-xs text-gray-400">סטטוס</p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="gesi-card p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">פרטי לקוח</h3>
+              <div className="gesi-card p-6 space-y-3">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-[#2dd4a8]" />
+                  פרטי לקוח
+                </h3>
                 <InfoRow label="שם מלא" value={contact.full_name} />
                 <InfoRow label="טלפון" value={contact.phone} />
                 <InfoRow label="אימייל" value={contact.email} />
@@ -189,10 +279,11 @@ export default function ContactCard() {
               </div>
 
               <div className="gesi-card p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">סטטוס</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">סטטוס ומידע</h3>
                 <InfoRow label="סטטוס" value={contact.status} />
                 <InfoRow label="משתמש מחובר" value={contact.user_email} />
                 {contact.lead_id && <InfoRow label="מקור ליד" value="כן (לחץ על טאב היסטוריה)" />}
+                <InfoRow label="נוצר בתאריך" value={new Date(contact.created_date).toLocaleDateString('he-IL')} />
               </div>
             </div>
           </TabsContent>
@@ -289,6 +380,14 @@ export default function ContactCard() {
         setData={setProjectData}
         onSubmit={() => createProjectMutation.mutate(projectData)}
         submitting={createProjectMutation.isPending}
+      />
+
+      <ContractModal
+        open={contractOpen}
+        onClose={() => setContractOpen(false)}
+        contact={contact}
+        onSubmit={(data) => createContractMutation.mutate(data)}
+        submitting={createContractMutation.isPending}
       />
     </div>
   );
