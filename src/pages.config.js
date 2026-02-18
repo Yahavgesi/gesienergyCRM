@@ -54,6 +54,11 @@ import CustomerPayments from './pages/CustomerPayments';
 import CustomerStore from './pages/CustomerStore';
 import CustomerChat from './pages/CustomerChat';
 import CustomerNotifications from './pages/CustomerNotifications';
+import CrmDashboard from './pages/CrmDashboard';
+import CrmLeads from './pages/CrmLeads';
+import CrmDeals from './pages/CrmDeals';
+import CrmCustomers from './pages/CrmCustomers';
+import CrmProjects from './pages/CrmProjects';
 import __Layout from './Layout.jsx';
 
 
@@ -65,6 +70,11 @@ export const PAGES = {
     "CustomerStore": CustomerStore,
     "CustomerChat": CustomerChat,
     "CustomerNotifications": CustomerNotifications,
+    "CrmDashboard": CrmDashboard,
+    "CrmLeads": CrmLeads,
+    "CrmDeals": CrmDeals,
+    "CrmCustomers": CrmCustomers,
+    "CrmProjects": CrmProjects,
 }
 
 export const pagesConfig = {
