@@ -22,8 +22,7 @@ const crmNav = [
   { section: "ראשי", items: [
     { name: "דשבורד", icon: LayoutDashboard, page: "CrmDashboard" },
     { name: "לידים", icon: Target, page: "CrmLeads" },
-    { name: "עסקאות", icon: Kanban, page: "CrmDeals" },
-    { name: "לקוחות", icon: Users, page: "CrmCustomers" },
+    { name: "אנשי קשר", icon: Users, page: "CrmContacts" },
   ]},
   { section: "ניהול", items: [
     { name: "הצעות מחיר", icon: FileCheck, page: "CrmQuotes" },

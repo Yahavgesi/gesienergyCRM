@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import DataTable from "../components/crm/DataTable";
@@ -7,6 +8,7 @@ import StatusBadge from "../components/shared/StatusBadge";
 import SkeletonCard from "../components/shared/SkeletonCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { createPageUrl } from "../utils";
 
 const statusLabels = { active: "פעיל", on_hold: "מושהה", completed: "הושלם", cancelled: "בוטל" };
 const statusMap = { active: "in_progress", on_hold: "pending", completed: "completed", cancelled: "blocked" };
@@ -34,6 +36,7 @@ const formFields = [
 ];
 
 export default function CrmProjects() {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({});
   const queryClient = useQueryClient();
@@ -75,7 +78,7 @@ export default function CrmProjects() {
           <Plus className="w-4 h-4 ml-2" /> פרויקט חדש
         </Button>
       </div>
-      {isLoading ? <SkeletonCard lines={5} /> : <DataTable columns={columns} data={projects} emptyMessage="אין פרויקטים" />}
+      {isLoading ? <SkeletonCard lines={5} /> : <DataTable columns={columns} data={projects} emptyMessage="אין פרויקטים" onRowClick={(project) => navigate(createPageUrl(`ProjectCard/${project.id}`))} />}
       <FormModal open={showForm} onClose={setShowForm} title="פרויקט חדש" fields={formFields}
         data={formData} setData={setFormData} onSubmit={() => createMutation.mutate(formData)} submitting={createMutation.isPending} />
     </div>

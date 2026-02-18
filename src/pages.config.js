@@ -47,56 +47,60 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Home from './pages/Home';
-import CustomerHome from './pages/CustomerHome';
-import CustomerDocuments from './pages/CustomerDocuments';
-import CustomerPayments from './pages/CustomerPayments';
-import CustomerStore from './pages/CustomerStore';
-import CustomerChat from './pages/CustomerChat';
-import CustomerNotifications from './pages/CustomerNotifications';
-import CrmDashboard from './pages/CrmDashboard';
-import CrmLeads from './pages/CrmLeads';
-import CrmDeals from './pages/CrmDeals';
+import CompanyCard from './pages/CompanyCard';
+import ContactCard from './pages/ContactCard';
+import CrmChatCenter from './pages/CrmChatCenter';
 import CrmCustomers from './pages/CrmCustomers';
-import CrmProjects from './pages/CrmProjects';
-import CrmQuotes from './pages/CrmQuotes';
+import CrmDashboard from './pages/CrmDashboard';
+import CrmDeals from './pages/CrmDeals';
 import CrmDocuments from './pages/CrmDocuments';
-import CrmTasks from './pages/CrmTasks';
+import CrmLeads from './pages/CrmLeads';
 import CrmPayments from './pages/CrmPayments';
 import CrmProducts from './pages/CrmProducts';
-import CrmChatCenter from './pages/CrmChatCenter';
+import CrmProjects from './pages/CrmProjects';
+import CrmQuotes from './pages/CrmQuotes';
 import CrmReports from './pages/CrmReports';
 import CrmSettings from './pages/CrmSettings';
+import CrmTasks from './pages/CrmTasks';
+import CustomerChat from './pages/CustomerChat';
+import CustomerDocuments from './pages/CustomerDocuments';
+import CustomerHome from './pages/CustomerHome';
+import CustomerNotifications from './pages/CustomerNotifications';
+import CustomerPayments from './pages/CustomerPayments';
+import CustomerStore from './pages/CustomerStore';
+import Home from './pages/Home';
 import LeadCard from './pages/LeadCard';
-import ContactCard from './pages/ContactCard';
-import CompanyCard from './pages/CompanyCard';
+import CrmContacts from './pages/CrmContacts';
+import ProjectCard from './pages/ProjectCard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "CustomerHome": CustomerHome,
-    "CustomerDocuments": CustomerDocuments,
-    "CustomerPayments": CustomerPayments,
-    "CustomerStore": CustomerStore,
-    "CustomerChat": CustomerChat,
-    "CustomerNotifications": CustomerNotifications,
-    "CrmDashboard": CrmDashboard,
-    "CrmLeads": CrmLeads,
-    "CrmDeals": CrmDeals,
+    "CompanyCard": CompanyCard,
+    "ContactCard": ContactCard,
+    "CrmChatCenter": CrmChatCenter,
     "CrmCustomers": CrmCustomers,
-    "CrmProjects": CrmProjects,
-    "CrmQuotes": CrmQuotes,
+    "CrmDashboard": CrmDashboard,
+    "CrmDeals": CrmDeals,
     "CrmDocuments": CrmDocuments,
-    "CrmTasks": CrmTasks,
+    "CrmLeads": CrmLeads,
     "CrmPayments": CrmPayments,
     "CrmProducts": CrmProducts,
-    "CrmChatCenter": CrmChatCenter,
+    "CrmProjects": CrmProjects,
+    "CrmQuotes": CrmQuotes,
     "CrmReports": CrmReports,
     "CrmSettings": CrmSettings,
+    "CrmTasks": CrmTasks,
+    "CustomerChat": CustomerChat,
+    "CustomerDocuments": CustomerDocuments,
+    "CustomerHome": CustomerHome,
+    "CustomerNotifications": CustomerNotifications,
+    "CustomerPayments": CustomerPayments,
+    "CustomerStore": CustomerStore,
+    "Home": Home,
     "LeadCard": LeadCard,
-    "ContactCard": ContactCard,
-    "CompanyCard": CompanyCard,
+    "CrmContacts": CrmContacts,
+    "ProjectCard": ProjectCard,
 }
 
 export const pagesConfig = {
