@@ -57,9 +57,9 @@ export default function CrmLeads() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['crm-leads'] }); setShowForm(false); setFormData({}); },
   });
 
-  const filtered = leads.filter(l =>
-    !search || l.full_name?.includes(search) || l.phone?.includes(search) || l.city?.includes(search)
-  );
+  const filtered = leads
+    .filter(l => l.status !== 'converted') // Hide converted leads
+    .filter(l => !search || l.full_name?.includes(search) || l.phone?.includes(search) || l.city?.includes(search));
 
   return (
     <div className="p-6 space-y-4" dir="rtl">
