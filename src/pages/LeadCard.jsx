@@ -15,7 +15,8 @@ import FilesPanel from "../components/crm/FilesPanel";
 import CallsLog from "../components/crm/CallsLog";
 
 export default function LeadCard() {
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
@@ -69,7 +70,7 @@ export default function LeadCard() {
     },
     onSuccess: (contact) => {
       queryClient.invalidateQueries(['lead', id]);
-      navigate(createPageUrl(`ContactCard/${contact.id}`));
+      navigate(createPageUrl(`ContactCard?id=${contact.id}`));
     },
   });
 
