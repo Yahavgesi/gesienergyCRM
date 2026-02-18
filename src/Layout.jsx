@@ -147,27 +147,29 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:relative inset-y-0 left-0 z-[60] h-full flex flex-col border-l transition-all duration-300
+        fixed lg:relative inset-y-0 right-0 lg:left-0 z-[60] h-full flex flex-col border-l lg:border-r transition-transform duration-300
         ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        ${sidebarCollapsed ? 'lg:w-20' : 'w-full max-w-[280px] lg:w-64'}
+        ${sidebarCollapsed ? 'lg:w-20' : 'w-[80vw] max-w-[300px] lg:w-64'}
       `} style={{ background: '#0d1f26', borderColor: 'rgba(45,212,168,0.08)' }}>
         
         {/* Logo */}
-        <div className="p-4 flex items-center justify-between border-b" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
-          <div className="flex items-center gap-3">
-            {!sidebarCollapsed && <GesiLogo size="sm" />}
-          </div>
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden lg:flex p-1.5 rounded-lg hover:bg-[#142e38] transition-colors"
-          >
-            {sidebarCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-          </button>
+        <div className="lg:hidden p-4 flex items-center justify-between border-b" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
+          <GesiLogo size="sm" />
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-[#142e38] transition-colors"
+            className="p-2 rounded-lg hover:bg-[#142e38] transition-colors"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        <div className="hidden lg:flex p-4 items-center justify-between border-b" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
+          {!sidebarCollapsed && <GesiLogo size="sm" />}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-1.5 rounded-lg hover:bg-[#142e38] transition-colors"
+          >
+            {sidebarCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
           </button>
         </div>
 
@@ -175,8 +177,11 @@ export default function Layout({ children, currentPageName }) {
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
           {crmNav.map(section => (
             <div key={section.section}>
+              <p className="lg:hidden text-[10px] uppercase font-semibold text-gray-500 tracking-wider mb-2 px-3">
+                {section.section}
+              </p>
               {!sidebarCollapsed && (
-                <p className="text-[10px] uppercase font-semibold text-gray-500 tracking-wider mb-2 px-3">
+                <p className="hidden lg:block text-[10px] uppercase font-semibold text-gray-500 tracking-wider mb-2 px-3">
                   {section.section}
                 </p>
               )}
@@ -188,15 +193,15 @@ export default function Layout({ children, currentPageName }) {
                       key={item.page}
                       to={createPageUrl(item.page)}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+                      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
                         isActive 
                           ? 'bg-[#2dd4a8]/10 text-[#2dd4a8]' 
                           : 'text-gray-400 hover:text-white hover:bg-[#142e38]'
                       }`}
                     >
-                      {isActive && <div className="absolute right-0 w-[3px] h-6 rounded-l-full bg-[#2dd4a8]" />}
+                      {isActive && <div className="absolute left-0 w-[3px] h-6 rounded-r-full bg-[#2dd4a8]" />}
                       <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#2dd4a8]' : ''}`} />
-                      {!sidebarCollapsed && <span className="text-sm font-medium">{item.name}</span>}
+                      <span className="text-sm font-medium lg:inline">{item.name}</span>
                     </Link>
                   );
                 })}
@@ -207,8 +212,19 @@ export default function Layout({ children, currentPageName }) {
 
         {/* User / Logout */}
         <div className="p-3 border-t" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
+          {user && (
+            <div className="flex items-center gap-3 px-3 py-2 mb-2 lg:hidden">
+              <div className="w-8 h-8 rounded-full bg-[#2dd4a8]/20 flex items-center justify-center text-[#2dd4a8] text-sm font-bold">
+                {user.full_name?.[0] || user.email?.[0] || "U"}
+              </div>
+              <div className="truncate">
+                <p className="text-xs font-medium text-white truncate">{user.full_name || user.email}</p>
+                <p className="text-[10px] text-gray-500">{user.role || "user"}</p>
+              </div>
+            </div>
+          )}
           {user && !sidebarCollapsed && (
-            <div className="flex items-center gap-3 px-3 py-2 mb-2">
+            <div className="hidden lg:flex items-center gap-3 px-3 py-2 mb-2">
               <div className="w-8 h-8 rounded-full bg-[#2dd4a8]/20 flex items-center justify-center text-[#2dd4a8] text-sm font-bold">
                 {user.full_name?.[0] || user.email?.[0] || "U"}
               </div>
@@ -223,7 +239,7 @@ export default function Layout({ children, currentPageName }) {
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
-            {!sidebarCollapsed && <span className="text-sm">התנתק</span>}
+            <span className="text-sm lg:inline">התנתק</span>
           </button>
         </div>
       </aside>
