@@ -173,117 +173,181 @@ export default function ContactCard() {
   ];
 
   return (
-    <div className="min-h-screen p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
-            <Button variant="outline" onClick={() => navigate(-1)} className="border-gray-600">
-              <ArrowRight className="w-4 h-4" />
+    <div className="min-h-screen bg-[#0a1a1f]" dir="rtl">
+      <div className="max-w-7xl mx-auto">
+        {/* Hero Header */}
+        <div className="relative bg-gradient-to-br from-[#0f2229] to-[#142e38] border-b border-[rgba(45,212,168,0.1)]">
+          <div className="p-6 pb-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(-1)} 
+              className="text-gray-400 hover:text-white hover:bg-[#1a3a47] mb-4"
+            >
+              <ArrowRight className="w-4 h-4 ml-2" />
+              חזור
             </Button>
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold text-white">{contact.full_name}</h1>
-                <StatusBadge status={contact.status} />
-                {contact.lead_id && (
-                  <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">הומר מליד</span>
-                )}
+
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex items-start gap-4">
+                {/* Avatar */}
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#2dd4a8] to-[#1fa882] flex items-center justify-center text-white text-2xl font-bold shadow-xl">
+                  {contact.full_name?.[0] || 'L'}
+                </div>
+                
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <h1 className="text-3xl font-bold text-white">{contact.full_name}</h1>
+                    <StatusBadge status={contact.status === 'active' ? 'completed' : contact.status === 'vip' ? 'in_progress' : 'blocked'} label={contact.status === 'active' ? 'פעיל' : contact.status === 'vip' ? 'VIP' : 'לא פעיל'} />
+                  </div>
+                  
+                  {contact.lead_id && (
+                    <span className="inline-flex items-center gap-1.5 text-xs bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full mb-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                      הומר מליד
+                    </span>
+                  )}
+                  
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    {contact.phone && (
+                      <a href={`tel:${contact.phone}`} className="flex items-center gap-2 text-gray-300 hover:text-[#2dd4a8] transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-[#2dd4a8]/10 flex items-center justify-center">
+                          <Phone className="w-4 h-4 text-[#2dd4a8]" />
+                        </div>
+                        <span>{contact.phone}</span>
+                      </a>
+                    )}
+                    {contact.email && (
+                      <a href={`mailto:${contact.email}`} className="flex items-center gap-2 text-gray-300 hover:text-[#2dd4a8] transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <span>{contact.email}</span>
+                      </a>
+                    )}
+                    {contact.city && (
+                      <div className="flex items-center gap-2 text-gray-300">
+                        <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-purple-400" />
+                        </div>
+                        <span>{contact.city}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-4 text-sm text-gray-400">
-                {contact.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" />{contact.phone}</div>}
-                {contact.email && <div className="flex items-center gap-1"><Mail className="w-3 h-3" />{contact.email}</div>}
-                {contact.city && <div className="flex items-center gap-1"><MapPin className="w-3 h-3" />{contact.city}</div>}
-                {contact.company_id && <div className="flex items-center gap-1"><Building2 className="w-3 h-3" />חברה משויכת</div>}
+
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => setContractOpen(true)} className="bg-gradient-to-r from-[#2dd4a8] to-[#1fa882] hover:shadow-lg hover:shadow-[#2dd4a8]/25 transition-all">
+                  <FileText className="w-4 h-4 ml-2" />
+                  הסכם חדש
+                </Button>
+                <Button onClick={() => { setProjectData({}); setProjectOpen(true); }} className="bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 transition-all">
+                  <Briefcase className="w-4 h-4 ml-2" />
+                  פרויקט חדש
+                </Button>
+                <Button variant="outline" onClick={() => { setEditData(contact); setEditOpen(true); }} className="border-gray-600 hover:bg-[#1a3a47]">
+                  <Edit className="w-4 h-4 ml-2" />
+                  ערוך
+                </Button>
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setContractOpen(true)} style={{ background: 'linear-gradient(135deg, #2dd4a8, #1fa882)' }}>
-              <FileText className="w-4 h-4 ml-2" />
-              הסכם חדש
-            </Button>
-            <Button onClick={() => { setProjectData({}); setProjectOpen(true); }} className="bg-blue-600 hover:bg-blue-700">
-              <Briefcase className="w-4 h-4 ml-2" />
-              פרויקט חדש
-            </Button>
-            <Button variant="outline" onClick={() => { setEditData(contact); setEditOpen(true); }} className="border-gray-600">
-              <Edit className="w-4 h-4 ml-2" />
-              ערוך
-            </Button>
           </div>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="bg-[#142e38] border-b border-[rgba(45,212,168,0.1)]">
-            <TabsTrigger value="overview">סקירה</TabsTrigger>
-            {leadHistory && <TabsTrigger value="lead-history">היסטוריית ליד</TabsTrigger>}
-            <TabsTrigger value="projects">פרויקטים</TabsTrigger>
-            <TabsTrigger value="documents">מסמכים</TabsTrigger>
-            <TabsTrigger value="payments">תשלומים</TabsTrigger>
-            <TabsTrigger value="chat">צ'אט</TabsTrigger>
-            <TabsTrigger value="timeline">פעילות</TabsTrigger>
-            <TabsTrigger value="tasks">משימות</TabsTrigger>
-            <TabsTrigger value="files">קבצים</TabsTrigger>
-          </TabsList>
+          <div className="border-b border-[rgba(45,212,168,0.1)] bg-[#0d1f26] sticky top-0 z-10">
+            <TabsList className="bg-transparent w-full justify-start px-6 py-0 h-auto">
+              <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">סקירה</TabsTrigger>
+              {leadHistory && <TabsTrigger value="lead-history" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">היסטוריית ליד</TabsTrigger>}
+              <TabsTrigger value="projects" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">פרויקטים</TabsTrigger>
+              <TabsTrigger value="documents" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">מסמכים</TabsTrigger>
+              <TabsTrigger value="payments" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">תשלומים</TabsTrigger>
+              <TabsTrigger value="chat" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">צ'אט</TabsTrigger>
+              <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">פעילות</TabsTrigger>
+              <TabsTrigger value="tasks" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">משימות</TabsTrigger>
+              <TabsTrigger value="files" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3">קבצים</TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="overview" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-              {/* Quick Stats */}
-              <div className="gesi-card p-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#2dd4a8]/20 flex items-center justify-center">
-                  <Briefcase className="w-6 h-6 text-[#2dd4a8]" />
+          <TabsContent value="overview" className="p-6 space-y-6">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2dd4a8]/10 to-[#2dd4a8]/5 border border-[#2dd4a8]/20 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-3xl font-bold text-white mb-1">{projects.length}</p>
+                    <p className="text-sm text-gray-400">פרויקטים פעילים</p>
+                  </div>
+                  <div className="w-14 h-14 rounded-xl bg-[#2dd4a8]/20 flex items-center justify-center">
+                    <Briefcase className="w-7 h-7 text-[#2dd4a8]" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{projects.length}</p>
-                  <p className="text-xs text-gray-400">פרויקטים</p>
-                </div>
+                <div className="absolute -bottom-2 -left-2 w-24 h-24 bg-[#2dd4a8]/5 rounded-full blur-2xl" />
               </div>
               
-              <div className="gesi-card p-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-blue-400" />
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-3xl font-bold text-white mb-1">{documents.length}</p>
+                    <p className="text-sm text-gray-400">מסמכים</p>
+                  </div>
+                  <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                    <FileText className="w-7 h-7 text-blue-400" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{documents.length}</p>
-                  <p className="text-xs text-gray-400">מסמכים</p>
-                </div>
+                <div className="absolute -bottom-2 -left-2 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl" />
               </div>
 
-              <div className="gesi-card p-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <User className="w-6 h-6 text-amber-400" />
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xl font-bold text-white mb-1">{contact.status === 'active' ? 'פעיל' : contact.status === 'vip' ? 'VIP' : 'לא פעיל'}</p>
+                    <p className="text-sm text-gray-400">סטטוס לקוח</p>
+                  </div>
+                  <div className="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                    <User className="w-7 h-7 text-purple-400" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-white">{contact.status === 'active' ? 'פעיל' : contact.status === 'vip' ? 'VIP' : 'לא פעיל'}</p>
-                  <p className="text-xs text-gray-400">סטטוס</p>
-                </div>
+                <div className="absolute -bottom-2 -left-2 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl" />
               </div>
             </div>
 
+            {/* Details Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="gesi-card p-6 space-y-3">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <User className="w-5 h-5 text-[#2dd4a8]" />
-                  פרטי לקוח
-                </h3>
-                <InfoRow label="שם מלא" value={contact.full_name} />
-                <InfoRow label="טלפון" value={contact.phone} />
-                <InfoRow label="אימייל" value={contact.email} />
-                <InfoRow label="ת.ז." value={contact.id_number} />
-                <InfoRow label="כתובת" value={contact.address} />
-                <InfoRow label="עיר" value={contact.city} />
-                <InfoRow label="שפה" value={contact.language} />
-                <InfoRow label="סוכן" value={contact.assigned_agent} />
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-[#2dd4a8]/10 flex items-center justify-center">
+                    <User className="w-5 h-5 text-[#2dd4a8]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">פרטי לקוח</h3>
+                </div>
+                <div className="space-y-3">
+                  <InfoRow label="שם מלא" value={contact.full_name} />
+                  <InfoRow label="טלפון" value={contact.phone} />
+                  <InfoRow label="אימייל" value={contact.email} />
+                  <InfoRow label="ת.ז." value={contact.id_number} />
+                  <InfoRow label="כתובת" value={contact.address} />
+                  <InfoRow label="עיר" value={contact.city} />
+                  <InfoRow label="שפה" value={contact.language} />
+                  <InfoRow label="סוכן מטפל" value={contact.assigned_agent} />
+                </div>
               </div>
 
-              <div className="gesi-card p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">סטטוס ומידע</h3>
-                <InfoRow label="סטטוס" value={contact.status} />
-                <InfoRow label="משתמש מחובר" value={contact.user_email} />
-                {contact.lead_id && <InfoRow label="מקור ליד" value="כן (לחץ על טאב היסטוריה)" />}
-                <InfoRow label="נוצר בתאריך" value={new Date(contact.created_date).toLocaleDateString('he-IL')} />
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">מידע נוסף</h3>
+                </div>
+                <div className="space-y-3">
+                  <InfoRow label="סטטוס" value={contact.status} />
+                  <InfoRow label="חשבון משתמש" value={contact.user_email} />
+                  {contact.lead_id && <InfoRow label="מקור ליד" value="כן - ראה בטאב היסטוריה" />}
+                  <InfoRow label="תאריך יצירה" value={new Date(contact.created_date).toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' })} />
+                  {contact.company_id && <InfoRow label="חברה משויכת" value="כן" />}
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -395,9 +459,9 @@ export default function ContactCard() {
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex justify-between items-center py-2 border-b border-[rgba(45,212,168,0.05)]">
-      <span className="text-sm text-gray-400">{label}</span>
-      <span className="text-sm text-white font-medium">{value || '—'}</span>
+    <div className="flex justify-between items-center py-3 border-b border-[rgba(45,212,168,0.05)] last:border-0 hover:bg-[rgba(45,212,168,0.02)] transition-colors rounded-lg px-2">
+      <span className="text-sm text-gray-400 font-medium">{label}</span>
+      <span className="text-sm text-white font-semibold">{value || '—'}</span>
     </div>
   );
 }
