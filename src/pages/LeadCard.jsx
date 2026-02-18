@@ -99,8 +99,21 @@ export default function LeadCard() {
     },
   });
 
-  const handleQuickUpdate = (field, value) => {
+  const handleQuickUpdate = async (field, value) => {
     updateMutation.mutate({ [field]: value });
+    
+    // Log sales stage changes
+    if (field === 'sales_stage') {
+      const oldStage = salesStages.find(s => s.value === lead.sales_stage)?.label || 'לא ידוע';
+      const newStage = salesStages.find(s => s.value === value)?.label || 'לא ידוע';
+      
+      await base44.entities.ActivityLog.create({
+        entity_type: 'lead',
+        entity_id: id,
+        action_type: 'stage_change',
+        description: `שלב עודכן: ${oldStage} → ${newStage}`,
+      });
+    }
   };
 
   if (isLoading) {
