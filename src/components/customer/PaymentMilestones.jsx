@@ -1,4 +1,6 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock, DollarSign, Truck, Wrench, Zap } from "lucide-react";
 
@@ -10,6 +12,13 @@ const milestoneIcons = {
 };
 
 export default function PaymentMilestones({ project }) {
+  const { data: payments = [] } = useQuery({
+    queryKey: ['payments', project?.id],
+    queryFn: () => base44.entities.Payment.filter({ project_id: project.id, status: 'completed' }),
+    enabled: !!project?.id,
+    initialData: [],
+  });
+
   if (!project?.price_per_kwp || !project?.kwp) {
     return (
       <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-6 text-center">
@@ -22,6 +31,11 @@ export default function PaymentMilestones({ project }) {
   const totalWithVat = project.total_price || 0;
   const remainingAfterDeposit = totalWithVat - depositAmount;
 
+  // Check which milestones are paid
+  const isPaid = (milestoneId) => {
+    return payments.some(p => p.milestone_type === milestoneId);
+  };
+
   const milestones = [
     {
       id: 'deposit',
@@ -31,7 +45,7 @@ export default function PaymentMilestones({ project }) {
       amount: depositAmount,
       icon: 'deposit',
       color: 'from-[#2dd4a8] to-[#1fa882]',
-      status: 'pending', // Should be fetched from actual payments
+      status: isPaid('deposit') ? 'completed' : 'pending',
     },
     {
       id: 'equipment',
@@ -41,7 +55,7 @@ export default function PaymentMilestones({ project }) {
       amount: remainingAfterDeposit * 0.5,
       icon: 'equipment',
       color: 'from-blue-500 to-blue-600',
-      status: 'pending',
+      status: isPaid('equipment_delivery') ? 'completed' : 'pending',
     },
     {
       id: 'completion',
@@ -51,7 +65,7 @@ export default function PaymentMilestones({ project }) {
       amount: remainingAfterDeposit * 0.45,
       icon: 'completion',
       color: 'from-purple-500 to-purple-600',
-      status: 'pending',
+      status: isPaid('system_completion') ? 'completed' : 'pending',
     },
     {
       id: 'grid_connection',
@@ -61,7 +75,7 @@ export default function PaymentMilestones({ project }) {
       amount: remainingAfterDeposit * 0.05,
       icon: 'grid_connection',
       color: 'from-amber-500 to-amber-600',
-      status: 'pending',
+      status: isPaid('grid_connection') ? 'completed' : 'pending',
     },
   ];
 
