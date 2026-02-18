@@ -32,6 +32,8 @@ const STAGE_LABELS = {
 };
 
 export default function CrmDashboard() {
+  const [selectedStage, setSelectedStage] = React.useState(null);
+
   const { data: leads, isLoading: l1 } = useQuery({
     queryKey: ['crm-leads'], queryFn: () => base44.entities.Lead.list('-created_date', 100), initialData: []
   });
@@ -57,12 +59,17 @@ export default function CrmDashboard() {
   // Pipeline distribution for pie chart
   const stageDistribution = Object.entries(
     deals.reduce((acc, d) => { acc[d.stage] = (acc[d.stage] || 0) + 1; return acc; }, {})
-  ).map(([name, value]) => ({ 
-    name: STAGE_LABELS[name] || name, 
+  ).map(([stageKey, value]) => ({ 
+    stageKey,
+    name: STAGE_LABELS[stageKey] || stageKey, 
     value, 
-    fill: STAGE_COLORS[name] || "#64748b",
+    fill: STAGE_COLORS[stageKey] || "#64748b",
     percentage: ((value / deals.length) * 100).toFixed(0)
   }));
+
+  const selectedStageDeals = selectedStage 
+    ? deals.filter(d => d.stage === selectedStage)
+    : [];
 
   if (isLoading) {
     return (
@@ -108,9 +115,17 @@ export default function CrmDashboard() {
                       paddingAngle={2}
                       label={({ percentage }) => `${percentage}%`}
                       labelLine={false}
+                      onClick={(data) => setSelectedStage(data.stageKey)}
+                      style={{ cursor: 'pointer' }}
                     >
                       {stageDistribution.map((entry, i) => (
-                        <Cell key={i} fill={entry.fill} stroke="rgba(10,26,31,0.8)" strokeWidth={2} />
+                        <Cell 
+                          key={i} 
+                          fill={entry.fill} 
+                          stroke={selectedStage === entry.stageKey ? entry.fill : "rgba(10,26,31,0.8)"} 
+                          strokeWidth={selectedStage === entry.stageKey ? 4 : 2}
+                          opacity={selectedStage && selectedStage !== entry.stageKey ? 0.3 : 1}
+                        />
                       ))}
                     </Pie>
                     <Tooltip 
@@ -130,13 +145,60 @@ export default function CrmDashboard() {
               {/* Legend */}
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 {stageDistribution.map((entry, i) => (
-                  <div key={i} className="flex items-center gap-2">
+                  <button
+                    key={i}
+                    onClick={() => setSelectedStage(entry.stageKey)}
+                    className={`flex items-center gap-2 p-1.5 rounded-lg transition-all ${
+                      selectedStage === entry.stageKey ? 'bg-[#142e38]' : 'hover:bg-[#142e38]/50'
+                    }`}
+                  >
                     <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: entry.fill }} />
                     <span className="text-gray-400 truncate">{entry.name}</span>
                     <span className="text-white font-semibold">{entry.value}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
+
+              {/* Selected Stage Details */}
+              {selectedStage && selectedStageDeals.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="pt-3 border-t space-y-2" 
+                  style={{ borderColor: 'rgba(45,212,168,0.08)' }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-semibold text-gray-300">
+                      {STAGE_LABELS[selectedStage]} ({selectedStageDeals.length})
+                    </h4>
+                    <button 
+                      onClick={() => setSelectedStage(null)}
+                      className="text-[10px] text-gray-500 hover:text-gray-300"
+                    >
+                      סגור ×
+                    </button>
+                  </div>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                    {selectedStageDeals.map(deal => (
+                      <Link
+                        key={deal.id}
+                        to={createPageUrl(`DealCard/${deal.id}`)}
+                        className="flex items-center justify-between p-2 rounded-lg bg-[#142e38]/40 hover:bg-[#142e38]/70 transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-white truncate">{deal.title || deal.customer_name}</p>
+                          <p className="text-[10px] text-gray-500">{deal.type || '—'}</p>
+                        </div>
+                        {deal.revenue && (
+                          <span className="text-[10px] text-[#2dd4a8] font-semibold">
+                            ₪{deal.revenue.toLocaleString()}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
           ) : (
             <p className="text-sm text-gray-500 text-center py-12">אין עסקאות עדיין</p>
