@@ -32,7 +32,7 @@ export default function DataTable({ columns, data, onRowClick, emptyMessage = "×
                 animate={{ opacity: 1 }}
                 transition={{ delay: i * 0.02 }}
                 onClick={() => onRowClick?.(row)}
-                className="border-b cursor-pointer hover:bg-[#142e38]/50 transition-colors"
+                className="border-b cursor-pointer hover:bg-[#1a3a47] transition-colors"
                 style={{ borderColor: 'rgba(255,255,255,0.03)' }}
               >
                 {columns.map(col => (
