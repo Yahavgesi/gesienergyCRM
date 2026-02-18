@@ -113,6 +113,11 @@ export default function LeadCard() {
         action_type: 'stage_change',
         description: `שלב עודכן: ${oldStage} → ${newStage}`,
       });
+
+      // Auto-convert to contact when marked as "won"
+      if (value === 'won' && lead.status !== 'converted') {
+        convertMutation.mutate();
+      }
     }
   };
 
@@ -146,12 +151,6 @@ export default function LeadCard() {
           </div>
 
           <div className="flex gap-2 w-full sm:w-auto">
-            {lead.status !== 'converted' && (
-              <Button onClick={() => convertMutation.mutate()} className="bg-[#2dd4a8] hover:bg-[#1fa882] flex-1 sm:flex-initial">
-                <CheckCircle2 className="w-4 h-4 ml-2" />
-                המר ללקוח
-              </Button>
-            )}
             <Button variant="outline" onClick={() => setEditMode(!editMode)} className="border-gray-600 flex-1 sm:flex-initial">
               <Edit className="w-4 h-4 ml-2" />
               {editMode ? 'סיים עריכה' : 'ערוך'}
