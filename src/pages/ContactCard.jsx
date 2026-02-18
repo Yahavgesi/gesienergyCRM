@@ -324,7 +324,7 @@ export default function ContactCard() {
           </TabsContent>
 
           <TabsContent value="documents">
-            <DocumentsPanel customerId={id} />
+            <DocumentsPanel customerId={id} contact={contact} />
           </TabsContent>
 
           <TabsContent value="payments">
