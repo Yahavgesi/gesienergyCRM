@@ -105,7 +105,7 @@ export default function ContactCard() {
     },
     onSuccess: (project) => {
       queryClient.invalidateQueries(['projects']);
-      navigate(createPageUrl(`ProjectCard/${project.id}`));
+      navigate(createPageUrl(`ProjectCard?id=${project.id}`));
     },
   });
 
@@ -370,7 +370,7 @@ export default function ContactCard() {
           <TabsContent value="projects">
             <div className="space-y-3">
               {projects.map(p => (
-                <Link key={p.id} to={createPageUrl(`ProjectCard/${p.id}`)} className="block gesi-card p-4 hover:bg-[#1a3a47] transition-colors">
+                <Link key={p.id} to={createPageUrl(`ProjectCard?id=${p.id}`)} className="block gesi-card p-4 hover:bg-[#1a3a47] transition-colors">
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="font-semibold text-white">{p.title}</h4>
