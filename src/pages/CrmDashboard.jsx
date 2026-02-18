@@ -182,7 +182,7 @@ export default function CrmDashboard() {
                     {selectedStageDeals.map(deal => (
                       <Link
                         key={deal.id}
-                        to={createPageUrl(`DealCard/${deal.id}`)}
+                        to={`/DealCard/${deal.id}`}
                         className="flex items-center justify-between p-2 rounded-lg bg-[#142e38]/40 hover:bg-[#142e38]/70 transition-colors"
                       >
                         <div className="flex-1 min-w-0">
@@ -212,7 +212,7 @@ export default function CrmDashboard() {
             {leads.slice(0, 5).map((lead, i) => (
               <Link 
                 key={lead.id} 
-                to={createPageUrl(`LeadCard/${lead.id}`)}
+                to={`/LeadCard/${lead.id}`}
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#142e38]/70 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-[#2dd4a8]/10 flex items-center justify-center text-[10px] font-bold text-[#2dd4a8]">
