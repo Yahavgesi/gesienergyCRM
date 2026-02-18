@@ -82,7 +82,7 @@ export default function CrmLeads() {
         </div>
       </div>
 
-      {isLoading ? <SkeletonCard lines={5} /> : <DataTable columns={columns} data={filtered} emptyMessage="אין לידים עדיין" onRowClick={(lead) => navigate(createPageUrl(`LeadCard/${lead.id}`))} />}
+      {isLoading ? <SkeletonCard lines={5} /> : <DataTable columns={columns} data={filtered} emptyMessage="אין לידים עדיין" onRowClick={(lead) => navigate(createPageUrl(`LeadCard?id=${lead.id}`))} />}
 
       <FormModal
         open={showForm}
