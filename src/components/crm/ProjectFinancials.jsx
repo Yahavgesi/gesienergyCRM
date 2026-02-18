@@ -203,7 +203,20 @@ export default function ProjectFinancials({ project }) {
                     <CheckCircle2 className="w-4 h-4 text-[#2dd4a8]" />
                     <div>
                       <p className="text-sm text-white">{payment.description || 'תשלום'}</p>
-                      <p className="text-[10px] text-gray-500">{new Date(payment.created_date).toLocaleDateString('he-IL')}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[10px] text-gray-500">{new Date(payment.created_date).toLocaleDateString('he-IL')}</p>
+                        {payment.milestone_type && (
+                          <>
+                            <span className="text-[10px] text-gray-600">•</span>
+                            <span className="text-[10px] text-blue-400">
+                              {payment.milestone_type === 'deposit' ? 'מקדמה' :
+                               payment.milestone_type === 'equipment_delivery' ? 'פריקת ציוד' :
+                               payment.milestone_type === 'system_completion' ? 'מוכנות מתקן' :
+                               payment.milestone_type === 'grid_connection' ? 'חיבור לרשת' : payment.milestone_type}
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <p className="text-sm font-bold text-[#2dd4a8]">₪{payment.amount.toLocaleString()}</p>
