@@ -78,7 +78,7 @@ export default function CrmProjects() {
           <Plus className="w-4 h-4 ml-2" /> פרויקט חדש
         </Button>
       </div>
-      {isLoading ? <SkeletonCard lines={5} /> : <DataTable columns={columns} data={projects} emptyMessage="אין פרויקטים" onRowClick={(project) => navigate(createPageUrl(`ProjectCard/${project.id}`))} />}
+      {isLoading ? <SkeletonCard lines={5} /> : <DataTable columns={columns} data={projects} emptyMessage="אין פרויקטים" onRowClick={(project) => navigate(createPageUrl(`ProjectCard?id=${project.id}`))} />}
       <FormModal open={showForm} onClose={setShowForm} title="פרויקט חדש" fields={formFields}
         data={formData} setData={setFormData} onSubmit={() => createMutation.mutate(formData)} submitting={createMutation.isPending} />
     </div>

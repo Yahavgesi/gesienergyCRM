@@ -18,7 +18,8 @@ import PaymentsPanel from "../components/crm/PaymentsPanel";
 import ProjectFinancials from "../components/crm/ProjectFinancials";
 
 export default function ProjectCard() {
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
