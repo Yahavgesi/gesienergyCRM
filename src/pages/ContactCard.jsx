@@ -16,7 +16,8 @@ import DocumentsPanel from "../components/crm/DocumentsPanel";
 import PaymentsPanel from "../components/crm/PaymentsPanel";
 
 export default function ContactCard() {
-  const { id } = useParams();
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
