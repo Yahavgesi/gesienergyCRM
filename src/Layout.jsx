@@ -130,30 +130,44 @@ export default function Layout({ children, currentPageName }) {
 
   // CRM Desktop Layout
   return (
-    <div className="min-h-screen flex" style={{ background: '#0a1a1f' }}>
-      {/* Mobile Menu Toggle */}
-      <button
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="lg:hidden fixed top-4 right-4 z-[60] p-2 rounded-xl bg-[#142e38] border border-[rgba(45,212,168,0.12)]"
-      >
-        {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
-      </button>
+    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: '#0a1a1f' }}>
+      {/* Mobile Header */}
+      <header className="lg:hidden sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b"
+        style={{ background: 'rgba(10,26,31,0.95)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
+        <div className="flex items-center gap-3">
+          <GesiLogo size="sm" />
+        </div>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 rounded-xl hover:bg-[#142e38] transition-colors"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+        </button>
+      </header>
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:relative z-50 h-screen flex flex-col border-l transition-all duration-300
+        fixed lg:relative top-0 left-0 z-50 h-screen flex flex-col border-l transition-all duration-300
         ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        ${sidebarCollapsed ? 'w-20' : 'w-64'}
+        ${sidebarCollapsed ? 'lg:w-20' : 'w-64'}
       `} style={{ background: '#0d1f26', borderColor: 'rgba(45,212,168,0.08)' }}>
         
         {/* Logo */}
         <div className="p-4 flex items-center justify-between border-b" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
-          {!sidebarCollapsed && <GesiLogo size="sm" />}
+          <div className="flex items-center gap-3">
+            {!sidebarCollapsed && <GesiLogo size="sm" />}
+          </div>
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="hidden lg:flex p-1.5 rounded-lg hover:bg-[#142e38] transition-colors"
           >
             {sidebarCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+          </button>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg hover:bg-[#142e38] transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-400" />
           </button>
         </div>
 
@@ -220,7 +234,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto lg:pt-0">
         {children}
       </main>
     </div>

@@ -50,6 +50,8 @@
 import CompanyCard from './pages/CompanyCard';
 import ContactCard from './pages/ContactCard';
 import CrmChatCenter from './pages/CrmChatCenter';
+import CrmCompanies from './pages/CrmCompanies';
+import CrmContacts from './pages/CrmContacts';
 import CrmCustomers from './pages/CrmCustomers';
 import CrmDashboard from './pages/CrmDashboard';
 import CrmDeals from './pages/CrmDeals';
@@ -70,9 +72,7 @@ import CustomerPayments from './pages/CustomerPayments';
 import CustomerStore from './pages/CustomerStore';
 import Home from './pages/Home';
 import LeadCard from './pages/LeadCard';
-import CrmContacts from './pages/CrmContacts';
 import ProjectCard from './pages/ProjectCard';
-import CrmCompanies from './pages/CrmCompanies';
 import __Layout from './Layout.jsx';
 
 
@@ -80,6 +80,8 @@ export const PAGES = {
     "CompanyCard": CompanyCard,
     "ContactCard": ContactCard,
     "CrmChatCenter": CrmChatCenter,
+    "CrmCompanies": CrmCompanies,
+    "CrmContacts": CrmContacts,
     "CrmCustomers": CrmCustomers,
     "CrmDashboard": CrmDashboard,
     "CrmDeals": CrmDeals,
@@ -100,9 +102,7 @@ export const PAGES = {
     "CustomerStore": CustomerStore,
     "Home": Home,
     "LeadCard": LeadCard,
-    "CrmContacts": CrmContacts,
     "ProjectCard": ProjectCard,
-    "CrmCompanies": CrmCompanies,
 }
 
 export const pagesConfig = {
