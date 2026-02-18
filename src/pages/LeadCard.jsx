@@ -16,7 +16,8 @@ import InternalChat from "../components/crm/InternalChat";
 import TasksPanel from "../components/crm/TasksPanel";
 import FilesPanel from "../components/crm/FilesPanel";
 import CallsLog from "../components/crm/CallsLog";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 const salesStages = [
   { value: 'new_lead', label: 'ליד חדש', color: 'bg-gray-500' },
@@ -95,7 +96,13 @@ export default function LeadCard() {
     },
     onSuccess: (contact) => {
       queryClient.invalidateQueries(['lead', id]);
-      navigate(createPageUrl(`ContactCard?id=${contact.id}`));
+      toast.success('✅ הומר לאיש קשר בהצלחה!', {
+        description: 'עובר לכרטיס איש הקשר...',
+        duration: 2000,
+      });
+      setTimeout(() => {
+        navigate(createPageUrl(`ContactCard?id=${contact.id}`));
+      }, 1000);
     },
   });
 
@@ -116,7 +123,14 @@ export default function LeadCard() {
 
       // Auto-convert to contact when marked as "won"
       if (value === 'won' && lead.status !== 'converted') {
-        convertMutation.mutate();
+        toast.success('🎉 ליד נסגר בהצלחה!', {
+          description: 'מעביר לאיש קשר ומכין הכל לפרויקט חדש...',
+          duration: 3000,
+        });
+        
+        setTimeout(() => {
+          convertMutation.mutate();
+        }, 1500);
       }
     }
   };

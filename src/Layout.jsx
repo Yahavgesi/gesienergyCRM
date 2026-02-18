@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "./utils";
 import { base44 } from "@/api/base44Client";
 import GesiLogo from "./components/shared/GesiLogo";
+import { Toaster } from "sonner";
 import {
   Home, FileText, CreditCard, ShoppingBag, MessageCircle,
   LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen,
@@ -75,13 +76,19 @@ export default function Layout({ children, currentPageName }) {
 
   // Landing / Portal selector
   if (isLanding) {
-    return <div className="min-h-screen" style={{ background: '#0a1a1f' }}>{children}</div>;
+    return (
+      <div className="min-h-screen" style={{ background: '#0a1a1f' }}>
+        <Toaster position="top-center" richColors />
+        {children}
+      </div>
+    );
   }
 
   // Customer Mobile Layout
   if (isCustomerPage) {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#0a1a1f' }}>
+        <Toaster position="top-center" richColors />
         {/* Customer Header */}
         <header className="sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b"
           style={{ background: 'rgba(10,26,31,0.95)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
@@ -131,6 +138,7 @@ export default function Layout({ children, currentPageName }) {
   // CRM Desktop Layout
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: '#0a1a1f' }}>
+      <Toaster position="top-center" richColors />
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between border-b"
         style={{ background: 'rgba(10,26,31,0.95)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
