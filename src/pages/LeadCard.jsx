@@ -111,10 +111,10 @@ export default function LeadCard() {
   const currentStageIndex = salesStages.findIndex(s => s.value === lead.sales_stage);
 
   return (
-    <div className="min-h-screen p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-3 sm:p-6" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-start justify-between flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <Button variant="outline" onClick={() => navigate(-1)} className="border-gray-600">
               <ArrowRight className="w-4 h-4" />
@@ -132,14 +132,14 @@ export default function LeadCard() {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             {lead.status !== 'converted' && (
-              <Button onClick={() => convertMutation.mutate()} className="bg-[#2dd4a8] hover:bg-[#1fa882]">
+              <Button onClick={() => convertMutation.mutate()} className="bg-[#2dd4a8] hover:bg-[#1fa882] flex-1 sm:flex-initial">
                 <CheckCircle2 className="w-4 h-4 ml-2" />
                 המר ללקוח
               </Button>
             )}
-            <Button variant="outline" onClick={() => setEditMode(!editMode)} className="border-gray-600">
+            <Button variant="outline" onClick={() => setEditMode(!editMode)} className="border-gray-600 flex-1 sm:flex-initial">
               <Edit className="w-4 h-4 ml-2" />
               {editMode ? 'סיים עריכה' : 'ערוך'}
             </Button>
@@ -147,13 +147,14 @@ export default function LeadCard() {
         </div>
 
         {/* Sales Pipeline */}
-        <div className="gesi-card p-6">
+        <div className="gesi-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-[#2dd4a8]" />
-            <h2 className="text-lg font-semibold text-white">שלב במסע המכירה</h2>
+            <h2 className="text-base sm:text-lg font-semibold text-white">שלב במסע המכירה</h2>
           </div>
           
-          <div className="relative">
+          {/* Desktop Pipeline */}
+          <div className="hidden md:block relative">
             <div className="flex justify-between items-center mb-4">
               {salesStages.map((stage, idx) => (
                 <div key={stage.value} className="flex flex-col items-center flex-1">
@@ -177,10 +178,33 @@ export default function LeadCard() {
               <div className={`h-full ${currentStage.color} transition-all duration-500`} style={{ width: `${(currentStageIndex / (salesStages.length - 1)) * 100}%` }} />
             </div>
           </div>
+
+          {/* Mobile Pipeline */}
+          <div className="md:hidden space-y-2">
+            {salesStages.map((stage, idx) => (
+              <button
+                key={stage.value}
+                onClick={() => editMode && handleQuickUpdate('sales_stage', stage.value)}
+                disabled={!editMode}
+                className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all
+                  ${idx <= currentStageIndex ? `${stage.color} text-white` : 'bg-gray-700/30 text-gray-500'}
+                  ${editMode ? 'active:scale-[0.98]' : ''}
+                `}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                  ${idx <= currentStageIndex ? 'bg-white/20' : 'bg-gray-600'}
+                `}>
+                  {idx + 1}
+                </div>
+                <span className="text-sm font-medium">{stage.label}</span>
+                {idx === currentStageIndex && <CheckCircle2 className="w-4 h-4 mr-auto" />}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <MetricCard
             icon={<Zap className="w-5 h-5" />}
             label="kWp משוער"
@@ -202,9 +226,9 @@ export default function LeadCard() {
             editable={editMode}
             onSave={(val) => handleQuickUpdate('roof_size_sqm', parseFloat(val))}
           />
-          <div className="gesi-card p-4">
+          <div className="gesi-card p-3 sm:p-4 col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-2 text-gray-400">
-              <FileText className="w-5 h-5" />
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="text-xs">הצעת מחיר</span>
             </div>
             {editMode ? (
@@ -212,14 +236,14 @@ export default function LeadCard() {
                 defaultValue={lead.quote_url || ''}
                 onBlur={(e) => handleQuickUpdate('quote_url', e.target.value)}
                 placeholder="הכנס לינק..."
-                className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-sm"
+                className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-xs sm:text-sm"
               />
             ) : lead.quote_url ? (
-              <a href={lead.quote_url} target="_blank" rel="noopener noreferrer" className="text-[#2dd4a8] hover:underline flex items-center gap-1 text-sm">
+              <a href={lead.quote_url} target="_blank" rel="noopener noreferrer" className="text-[#2dd4a8] hover:underline flex items-center gap-1 text-xs sm:text-sm">
                 צפה בהצעה <ExternalLink className="w-3 h-3" />
               </a>
             ) : (
-              <span className="text-gray-500 text-sm">לא הוגדר</span>
+              <span className="text-gray-500 text-xs sm:text-sm">לא הוגדר</span>
             )}
           </div>
         </div>
@@ -229,14 +253,14 @@ export default function LeadCard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="gesi-card p-6"
+            className="gesi-card p-4 sm:p-6"
           >
             <div className="flex items-center gap-2 mb-4">
-              <Users className="w-5 h-5 text-[#2dd4a8]" />
-              <h2 className="text-lg font-semibold text-white">לקוחות קרובים גיאוגרפית</h2>
-              <span className="text-xs text-gray-500">({nearbyCustomers.length} פרויקטים)</span>
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#2dd4a8]" />
+              <h2 className="text-base sm:text-lg font-semibold text-white">לקוחות קרובים גיאוגרפית</h2>
+              <span className="text-xs text-gray-500">({nearbyCustomers.length})</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {nearbyCustomers.slice(0, 6).map(project => (
                 <div key={project.id} className="bg-[#142e38]/50 p-3 rounded-lg border border-[#2dd4a8]/10 hover:border-[#2dd4a8]/30 transition-all">
                   <div className="flex justify-between items-start mb-2">
@@ -267,10 +291,10 @@ export default function LeadCard() {
             <TabsTrigger value="files">קבצים</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="gesi-card p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">פרטי ליד</h3>
+          <TabsContent value="overview" className="mt-4 sm:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <div className="gesi-card p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">פרטי ליד</h3>
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
@@ -307,8 +331,8 @@ export default function LeadCard() {
                 )}
               </div>
 
-              <div className="gesi-card p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">מידע נוסף</h3>
+              <div className="gesi-card p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">מידע נוסף</h3>
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
@@ -378,10 +402,10 @@ function MetricCard({ icon, label, value, editable, onSave }) {
   const [editValue, setEditValue] = useState('');
 
   return (
-    <div className="gesi-card p-4">
-      <div className="flex items-center gap-2 mb-2 text-gray-400">
-        {icon}
-        <span className="text-xs">{label}</span>
+    <div className="gesi-card p-3 sm:p-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 text-gray-400">
+        <div className="w-4 h-4 sm:w-5 sm:h-5">{icon}</div>
+        <span className="text-[10px] sm:text-xs">{label}</span>
       </div>
       {editable && isEditing ? (
         <Input
@@ -399,12 +423,12 @@ function MetricCard({ icon, label, value, editable, onSave }) {
               setIsEditing(false);
             }
           }}
-          className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-lg font-bold"
+          className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-base sm:text-lg font-bold"
         />
       ) : (
         <p 
           onClick={() => editable && setIsEditing(true)}
-          className={`text-lg font-bold text-white ${editable ? 'cursor-pointer hover:text-[#2dd4a8]' : ''}`}
+          className={`text-base sm:text-lg font-bold text-white ${editable ? 'cursor-pointer hover:text-[#2dd4a8]' : ''}`}
         >
           {value}
         </p>
