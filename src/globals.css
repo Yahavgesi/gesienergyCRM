@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gesi-bg-dark: #0a1a1f;
+  --gesi-bg-card: #0f2229;
+  --gesi-bg-elevated: #142e38;
+  --gesi-accent: #2dd4a8;
+  --gesi-accent-dark: #1fa882;
+  --gesi-accent-glow: rgba(45, 212, 168, 0.15);
+  --gesi-text-primary: #ffffff;
+  --gesi-text-secondary: #94a3b8;
+  --gesi-text-muted: #64748b;
+  --gesi-border: rgba(45, 212, 168, 0.12);
+  --gesi-border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+* {
+  font-family: 'Rubik', sans-serif;
+}
+
+body {
+  background-color: var(--gesi-bg-dark);
+  color: var(--gesi-text-primary);
+  direction: rtl;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--gesi-bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gesi-bg-elevated);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gesi-accent-dark);
+}
+
+/* Glow button */
+.gesi-btn-primary {
+  background: linear-gradient(135deg, #2dd4a8 0%, #1fa882 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(45, 212, 168, 0.2);
+}
+.gesi-btn-primary:hover {
+  box-shadow: 0 0 30px rgba(45, 212, 168, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Glass card */
+.gesi-card {
+  background: rgba(15, 34, 41, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--gesi-border);
+  border-radius: 16px;
+}
+
+/* Status animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(45, 212, 168, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(45, 212, 168, 0.6); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--gesi-bg-card) 25%, var(--gesi-bg-elevated) 50%, var(--gesi-bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Timeline connector line */
+.timeline-line {
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gesi-accent), var(--gesi-bg-elevated));
+}
