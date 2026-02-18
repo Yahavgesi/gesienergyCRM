@@ -98,7 +98,7 @@ export default function ContactCard() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading || !contact) {
     return <div className="p-8"><div className="animate-pulse h-96 bg-[#142e38] rounded-xl" /></div>;
   }
 
