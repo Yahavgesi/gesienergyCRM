@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Edit, Phone, Mail, MapPin, ExternalLink, Users } from "lucide-react";
-import { createPageUrl } from "./utils";
+import { createPageUrl } from "../utils";
 import StatusBadge from "../components/shared/StatusBadge";
 import FormModal from "../components/crm/FormModal";
 import ActivityTimeline from "../components/crm/ActivityTimeline";
