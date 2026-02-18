@@ -132,24 +132,24 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: '#0a1a1f' }}>
       {/* Mobile Header */}
-      <header className="lg:hidden sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b"
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between border-b"
         style={{ background: 'rgba(10,26,31,0.95)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
         <div className="flex items-center gap-3">
           <GesiLogo size="sm" />
         </div>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl hover:bg-[#142e38] transition-colors"
+          className="p-2 rounded-xl hover:bg-[#142e38] transition-colors z-50"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+          {mobileMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
         </button>
       </header>
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:relative top-0 left-0 z-50 h-screen flex flex-col border-l transition-all duration-300
+        fixed lg:relative inset-y-0 left-0 z-[60] h-full flex flex-col border-l transition-all duration-300
         ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        ${sidebarCollapsed ? 'lg:w-20' : 'w-64'}
+        ${sidebarCollapsed ? 'lg:w-20' : 'w-full max-w-[280px] lg:w-64'}
       `} style={{ background: '#0d1f26', borderColor: 'rgba(45,212,168,0.08)' }}>
         
         {/* Logo */}
@@ -234,7 +234,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto lg:pt-0">
+      <main className="flex-1 overflow-y-auto pt-[65px] lg:pt-0">
         {children}
       </main>
     </div>
