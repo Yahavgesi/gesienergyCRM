@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import EmptyState from "../components/shared/EmptyState";
 import SkeletonCard from "../components/shared/SkeletonCard";
+import PaymentMilestones from "../components/customer/PaymentMilestones";
 import { CreditCard, CheckCircle2, Clock, XCircle, Receipt, ChevronDown, ChevronUp } from "lucide-react";
 
 const statusConfig = {
@@ -29,6 +30,15 @@ export default function CustomerPayments() {
     initialData: [],
   });
 
+  const { data: projects = [] } = useQuery({
+    queryKey: ['customer-projects', user?.email],
+    queryFn: () => base44.entities.Project.filter({ customer_email: user.email }),
+    enabled: !!user?.email,
+    initialData: [],
+  });
+
+  const activeProject = projects.find(p => p.status === 'active') || projects[0];
+
   const totalPaid = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0);
   const pendingTotal = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0);
 
@@ -39,6 +49,13 @@ export default function CustomerPayments() {
   return (
     <div className="p-4 pb-24 max-w-lg mx-auto" dir="rtl">
       <h1 className="text-lg font-bold text-white mb-4">תשלומים</h1>
+
+      {/* Payment Milestones */}
+      {activeProject && (
+        <div className="mb-6">
+          <PaymentMilestones project={activeProject} />
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-3 mb-6">
@@ -51,6 +68,8 @@ export default function CustomerPayments() {
           <p className="text-xl font-bold text-amber-400">₪{pendingTotal.toLocaleString()}</p>
         </motion.div>
       </div>
+
+      {payments.length > 0 && <h2 className="text-sm font-semibold text-gray-300 mb-3">היסטוריית תשלומים</h2>}
 
       {payments.length === 0 ? (
         <EmptyState icon={CreditCard} title="אין תשלומים" description="התשלומים שלך יופיעו כאן" />

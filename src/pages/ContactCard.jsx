@@ -435,13 +435,23 @@ export default function ContactCard() {
             { value: 'commercial', label: 'מסחרי' },
             { value: 'tender', label: 'מכרז' }
           ]},
-          { key: 'kwp', label: 'kWp', type: 'number', placeholder: '0' },
+          { key: 'kwp', label: 'גודל מערכת (kWp)', type: 'number', placeholder: '10' },
+          { key: 'price_per_kwp', label: 'מחיר לקילו-וואט (ללא מע״מ)', type: 'number', placeholder: '4500' },
           { key: 'address', label: 'כתובת התקנה', placeholder: contact.address || '' },
           { key: 'start_date', label: 'תאריך התחלה', type: 'date' },
           { key: 'estimated_completion', label: 'צפי סיום', type: 'date' },
         ]}
         data={projectData}
-        setData={setProjectData}
+        setData={(data) => {
+          // Auto-calculate prices with VAT
+          if (data.price_per_kwp && data.kwp) {
+            const priceWithVat = parseFloat(data.price_per_kwp) * 1.18;
+            const totalPrice = priceWithVat * parseFloat(data.kwp);
+            data.price_per_kwp_with_vat = Math.round(priceWithVat);
+            data.total_price = Math.round(totalPrice);
+          }
+          setProjectData(data);
+        }}
         onSubmit={() => createProjectMutation.mutate(projectData)}
         submitting={createProjectMutation.isPending}
       />
