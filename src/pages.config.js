@@ -59,6 +59,14 @@ import CrmLeads from './pages/CrmLeads';
 import CrmDeals from './pages/CrmDeals';
 import CrmCustomers from './pages/CrmCustomers';
 import CrmProjects from './pages/CrmProjects';
+import CrmQuotes from './pages/CrmQuotes';
+import CrmDocuments from './pages/CrmDocuments';
+import CrmTasks from './pages/CrmTasks';
+import CrmPayments from './pages/CrmPayments';
+import CrmProducts from './pages/CrmProducts';
+import CrmChatCenter from './pages/CrmChatCenter';
+import CrmReports from './pages/CrmReports';
+import CrmSettings from './pages/CrmSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +83,14 @@ export const PAGES = {
     "CrmDeals": CrmDeals,
     "CrmCustomers": CrmCustomers,
     "CrmProjects": CrmProjects,
+    "CrmQuotes": CrmQuotes,
+    "CrmDocuments": CrmDocuments,
+    "CrmTasks": CrmTasks,
+    "CrmPayments": CrmPayments,
+    "CrmProducts": CrmProducts,
+    "CrmChatCenter": CrmChatCenter,
+    "CrmReports": CrmReports,
+    "CrmSettings": CrmSettings,
 }
 
 export const pagesConfig = {
