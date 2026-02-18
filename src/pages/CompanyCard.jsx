@@ -52,6 +52,7 @@ export default function CompanyCard() {
     mutationFn: (data) => base44.entities.Company.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['company', id]);
+      queryClient.invalidateQueries(['crm-companies']);
       setEditOpen(false);
     },
   });

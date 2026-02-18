@@ -21,6 +21,8 @@ export default function ContactCard() {
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [editData, setEditData] = useState({});
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [projectData, setProjectData] = useState({});
 
   const { data: contact, isLoading } = useQuery({
     queryKey: ['contact', id],
@@ -55,7 +57,44 @@ export default function ContactCard() {
     mutationFn: (data) => base44.entities.Contact.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['contact', id]);
+      queryClient.invalidateQueries(['crm-contacts']);
       setEditOpen(false);
+    },
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: async (data) => {
+      const project = await base44.entities.Project.create({
+        ...data,
+        customer_id: id,
+        customer_name: contact.full_name,
+        customer_email: contact.user_email,
+      });
+
+      const defaultSteps = [
+        { name: "חתימת חוזה", description: "חתימה על חוזה התקנה", step_index: 0 },
+        { name: "תשלום מקדמה", description: "תשלום מקדמה לפני תחילת עבודה", step_index: 1 },
+        { name: "סקר גג", description: "ביצוע סקר הנדסי של הגג", step_index: 2 },
+        { name: "תכנון מערכת", description: "תכנון ועיצוב המערכת הסולארית", step_index: 3 },
+        { name: "היתרים ואישורים", description: "קבלת היתרים מחברת החשמל", step_index: 4 },
+        { name: "הזמנת ציוד", description: "הזמנת פאנלים ומהפכים", step_index: 5 },
+        { name: "התקנה", description: "התקנת המערכת על הגג", step_index: 6 },
+        { name: "חיבור לרשת", description: "חיבור לרשת החשמל", step_index: 7 },
+        { name: "בדיקות סופיות", description: "בדיקות ואישור תקינות", step_index: 8 },
+        { name: "הפעלה", description: "הפעלת המערכת", step_index: 9 },
+      ];
+
+      await base44.entities.ProjectStep.bulkCreate(
+        defaultSteps.map(s => ({ ...s, project_id: project.id, customer_email: contact.user_email, status: s.step_index === 0 ? "in_progress" : "pending" }))
+      );
+
+      await base44.entities.Project.update(project.id, { current_step: defaultSteps[0].name, current_step_index: 0 });
+
+      return project;
+    },
+    onSuccess: (project) => {
+      queryClient.invalidateQueries(['projects']);
+      navigate(createPageUrl(`ProjectCard/${project.id}`));
     },
   });
 
@@ -109,10 +148,15 @@ export default function ContactCard() {
             </div>
           </div>
 
-          <Button variant="outline" onClick={() => { setEditData(contact); setEditOpen(true); }} className="border-gray-600">
-            <Edit className="w-4 h-4 ml-2" />
-            ערוך
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => { setProjectData({}); setProjectOpen(true); }} className="bg-[#2dd4a8] hover:bg-[#1fa882]">
+              + פרויקט חדש
+            </Button>
+            <Button variant="outline" onClick={() => { setEditData(contact); setEditOpen(true); }} className="border-gray-600">
+              <Edit className="w-4 h-4 ml-2" />
+              ערוך
+            </Button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -222,6 +266,28 @@ export default function ContactCard() {
         setData={setEditData}
         onSubmit={() => updateMutation.mutate(editData)}
         submitting={updateMutation.isPending}
+      />
+
+      <FormModal
+        open={projectOpen}
+        onClose={() => setProjectOpen(false)}
+        title="פרויקט חדש"
+        fields={[
+          { key: 'title', label: 'שם פרויקט', placeholder: 'פרויקט התקנה סולארית' },
+          { key: 'type', label: 'סוג', type: 'select', options: [
+            { value: 'residential', label: 'פרטי' },
+            { value: 'commercial', label: 'מסחרי' },
+            { value: 'tender', label: 'מכרז' }
+          ]},
+          { key: 'kwp', label: 'kWp', type: 'number', placeholder: '0' },
+          { key: 'address', label: 'כתובת התקנה', placeholder: contact.address || '' },
+          { key: 'start_date', label: 'תאריך התחלה', type: 'date' },
+          { key: 'estimated_completion', label: 'צפי סיום', type: 'date' },
+        ]}
+        data={projectData}
+        setData={setProjectData}
+        onSubmit={() => createProjectMutation.mutate(projectData)}
+        submitting={createProjectMutation.isPending}
       />
     </div>
   );

@@ -36,6 +36,7 @@ export default function LeadCard() {
     mutationFn: (data) => base44.entities.Lead.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['lead', id]);
+      queryClient.invalidateQueries(['crm-leads']);
       setEditOpen(false);
     },
   });

@@ -72,6 +72,7 @@ import Home from './pages/Home';
 import LeadCard from './pages/LeadCard';
 import CrmContacts from './pages/CrmContacts';
 import ProjectCard from './pages/ProjectCard';
+import CrmCompanies from './pages/CrmCompanies';
 import __Layout from './Layout.jsx';
 
 
@@ -101,6 +102,7 @@ export const PAGES = {
     "LeadCard": LeadCard,
     "CrmContacts": CrmContacts,
     "ProjectCard": ProjectCard,
+    "CrmCompanies": CrmCompanies,
 }
 
 export const pagesConfig = {

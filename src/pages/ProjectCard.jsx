@@ -58,6 +58,7 @@ export default function ProjectCard() {
     mutationFn: (data) => base44.entities.Project.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['project', id]);
+      queryClient.invalidateQueries(['crm-projects']);
       setEditOpen(false);
     },
   });

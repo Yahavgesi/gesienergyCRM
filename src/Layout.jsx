@@ -7,7 +7,7 @@ import {
   Home, FileText, CreditCard, ShoppingBag, MessageCircle,
   LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen,
   ClipboardList, Calendar, DollarSign, Package, Settings, Bell,
-  BarChart3, Zap, ChevronLeft, ChevronRight, LogOut, Menu, X
+  BarChart3, Zap, ChevronLeft, ChevronRight, LogOut, Menu, X, Building2
 } from "lucide-react";
 
 const customerNav = [
@@ -23,6 +23,7 @@ const crmNav = [
     { name: "דשבורד", icon: LayoutDashboard, page: "CrmDashboard" },
     { name: "לידים", icon: Target, page: "CrmLeads" },
     { name: "אנשי קשר", icon: Users, page: "CrmContacts" },
+    { name: "חברות", icon: Building2, page: "CrmCompanies" },
   ]},
   { section: "ניהול", items: [
     { name: "הצעות מחיר", icon: FileCheck, page: "CrmQuotes" },
