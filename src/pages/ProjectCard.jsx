@@ -15,6 +15,7 @@ import TasksPanel from "../components/crm/TasksPanel";
 import FilesPanel from "../components/crm/FilesPanel";
 import DocumentsPanel from "../components/crm/DocumentsPanel";
 import PaymentsPanel from "../components/crm/PaymentsPanel";
+import ProjectFinancials from "../components/crm/ProjectFinancials";
 
 export default function ProjectCard() {
   const { id } = useParams();
@@ -161,6 +162,7 @@ export default function ProjectCard() {
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="bg-[#142e38] border-b border-[rgba(45,212,168,0.1)]">
             <TabsTrigger value="overview">סקירה</TabsTrigger>
+            <TabsTrigger value="financials">כספים</TabsTrigger>
             <TabsTrigger value="steps">שלבים</TabsTrigger>
             <TabsTrigger value="documents">מסמכים</TabsTrigger>
             <TabsTrigger value="simulations">הדמיות</TabsTrigger>
@@ -200,6 +202,10 @@ export default function ProjectCard() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="financials" className="mt-6">
+            <ProjectFinancials project={project} />
           </TabsContent>
 
           <TabsContent value="steps">
