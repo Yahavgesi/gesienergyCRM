@@ -67,6 +67,9 @@ import CrmProducts from './pages/CrmProducts';
 import CrmChatCenter from './pages/CrmChatCenter';
 import CrmReports from './pages/CrmReports';
 import CrmSettings from './pages/CrmSettings';
+import LeadCard from './pages/LeadCard';
+import ContactCard from './pages/ContactCard';
+import CompanyCard from './pages/CompanyCard';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +94,9 @@ export const PAGES = {
     "CrmChatCenter": CrmChatCenter,
     "CrmReports": CrmReports,
     "CrmSettings": CrmSettings,
+    "LeadCard": LeadCard,
+    "ContactCard": ContactCard,
+    "CompanyCard": CompanyCard,
 }
 
 export const pagesConfig = {
