@@ -73,6 +73,7 @@ import CustomerStore from './pages/CustomerStore';
 import Home from './pages/Home';
 import LeadCard from './pages/LeadCard';
 import ProjectCard from './pages/ProjectCard';
+import SystemFolder from './pages/SystemFolder';
 import __Layout from './Layout.jsx';
 
 
@@ -103,6 +104,7 @@ export const PAGES = {
     "Home": Home,
     "LeadCard": LeadCard,
     "ProjectCard": ProjectCard,
+    "SystemFolder": SystemFolder,
 }
 
 export const pagesConfig = {

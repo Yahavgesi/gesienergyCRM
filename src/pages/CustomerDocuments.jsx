@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import EmptyState from "../components/shared/EmptyState";
 import SkeletonCard from "../components/shared/SkeletonCard";
 import StatusBadge from "../components/shared/StatusBadge";
-import { FileText, Eye, PenTool, Upload, FileCheck, FolderOpen, Shield, File } from "lucide-react";
+import { FileText, Eye, PenTool, Upload, FileCheck, FolderOpen, Shield, File, Folder } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "../utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const categoryLabels = {
@@ -54,9 +56,23 @@ export default function CustomerDocuments() {
     return <div className="p-4 space-y-3" dir="rtl">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
   }
 
+  const signedDocsCount = documents.filter(d => d.status === 'signed').length;
+
   return (
     <div className="p-4 pb-24 max-w-lg mx-auto" dir="rtl">
-      <h1 className="text-lg font-bold text-white mb-4">מסמכים</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg font-bold text-white">מסמכים</h1>
+        {signedDocsCount > 0 && (
+          <Link 
+            to={createPageUrl("SystemFolder")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
+            style={{ background: 'linear-gradient(135deg, #2dd4a8, #1fa882)', color: 'white' }}
+          >
+            <Folder className="w-3.5 h-3.5" />
+            תיק מערכת ({signedDocsCount})
+          </Link>
+        )}
+      </div>
 
       {/* Category tabs */}
       <div className="flex gap-2 overflow-x-auto pb-3 mb-4 no-scrollbar">
@@ -124,7 +140,7 @@ export default function CustomerDocuments() {
                         צפייה
                       </a>
                     )}
-                    {needsSign && (
+                    {needsSign ? (
                       <button
                         onClick={() => signMutation.mutate(doc)}
                         disabled={signMutation.isPending}
@@ -134,6 +150,14 @@ export default function CustomerDocuments() {
                         <PenTool className="w-3.5 h-3.5" />
                         חתימה
                       </button>
+                    ) : doc.status === 'signed' && (
+                      <Link
+                        to={createPageUrl("SystemFolder")}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-[#2dd4a8]/30 text-[#2dd4a8] text-xs font-medium hover:bg-[#2dd4a8]/10 transition-colors"
+                      >
+                        <Folder className="w-3.5 h-3.5" />
+                        תיק מערכת
+                      </Link>
                     )}
                   </div>
                 </motion.div>

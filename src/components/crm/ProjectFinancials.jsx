@@ -35,10 +35,19 @@ export default function ProjectFinancials({ project }) {
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [expenseData, setExpenseData] = useState({});
   const [editingExpense, setEditingExpense] = useState(null);
+  const [milestoneOpen, setMilestoneOpen] = useState(false);
+  const [milestoneData, setMilestoneData] = useState({});
+  const [editingMilestone, setEditingMilestone] = useState(null);
 
   const { data: payments = [] } = useQuery({
     queryKey: ['payments', project.id],
     queryFn: () => base44.entities.Payment.filter({ project_id: project.id }),
+    initialData: [],
+  });
+
+  const { data: paymentMilestones = [] } = useQuery({
+    queryKey: ['payment-milestones', project.id],
+    queryFn: () => base44.entities.PaymentRequest.filter({ project_id: project.id }, '-created_date'),
     initialData: [],
   });
 
@@ -79,6 +88,32 @@ export default function ProjectFinancials({ project }) {
     },
   });
 
+  const createMilestoneMutation = useMutation({
+    mutationFn: (data) => 
+      editingMilestone 
+        ? base44.entities.PaymentRequest.update(editingMilestone.id, data)
+        : base44.entities.PaymentRequest.create({ 
+            ...data, 
+            project_id: project.id,
+            customer_email: project.customer_email,
+            contact_id: project.customer_id,
+            status: 'pending'
+          }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['payment-milestones', project.id]);
+      setMilestoneOpen(false);
+      setMilestoneData({});
+      setEditingMilestone(null);
+    },
+  });
+
+  const deleteMilestoneMutation = useMutation({
+    mutationFn: (id) => base44.entities.PaymentRequest.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['payment-milestones', project.id]);
+    },
+  });
+
   // Calculations
   const totalRevenue = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -104,6 +139,18 @@ export default function ProjectFinancials({ project }) {
     { key: 'supplier', label: 'ספק', placeholder: 'שם הספק' },
     { key: 'invoice_number', label: 'מספר חשבונית', placeholder: 'מס\' חשבונית' },
     { key: 'notes', label: 'הערות', type: 'textarea', placeholder: 'הערות נוספות' },
+  ];
+
+  const milestoneFields = [
+    { key: 'type', label: 'סוג תשלום', type: 'select', options: [
+      { value: 'deposit', label: 'מקדמה' },
+      { value: 'milestone', label: 'אבן דרך' },
+      { value: 'installment', label: 'תשלום' },
+      { value: 'final_payment', label: 'תשלום סופי' },
+    ]},
+    { key: 'amount', label: 'סכום', type: 'number', placeholder: '0' },
+    { key: 'description', label: 'תיאור', placeholder: 'תיאור התשלום' },
+    { key: 'installments', label: 'מספר תשלומים', type: 'number', placeholder: '1' },
   ];
 
   return (
@@ -184,46 +231,100 @@ export default function ProjectFinancials({ project }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Panel */}
+        {/* Payment Milestones */}
         <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-[#2dd4a8]" />
-              הכנסות מלקוח
+              <Clock className="w-5 h-5 text-blue-400" />
+              אבני דרך לתשלום
             </h3>
+            <Button 
+              size="sm" 
+              onClick={() => {
+                setEditingMilestone(null);
+                setMilestoneData({});
+                setMilestoneOpen(true);
+              }}
+              className="bg-gradient-to-r from-blue-500 to-blue-600"
+            >
+              <Plus className="w-4 h-4 ml-1" />
+              הוספה
+            </Button>
           </div>
 
-          <div className="space-y-2">
-            {payments.filter(p => p.status === 'completed').length === 0 ? (
-              <p className="text-center text-gray-500 py-8 text-sm">אין תשלומים שהתקבלו</p>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {paymentMilestones.length === 0 ? (
+              <p className="text-center text-gray-500 py-8 text-sm">אין אבני דרך מוגדרות</p>
             ) : (
-              payments.filter(p => p.status === 'completed').map(payment => (
-                <div key={payment.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0a1a1f] border border-[rgba(45,212,168,0.08)]">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#2dd4a8]" />
-                    <div>
-                      <p className="text-sm text-white">{payment.description || 'תשלום'}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-[10px] text-gray-500">{new Date(payment.created_date).toLocaleDateString('he-IL')}</p>
-                        {payment.milestone_type && (
-                          <>
-                            <span className="text-[10px] text-gray-600">•</span>
-                            <span className="text-[10px] text-blue-400">
-                              {payment.milestone_type === 'deposit' ? 'מקדמה' :
-                               payment.milestone_type === 'equipment_delivery' ? 'פריקת ציוד' :
-                               payment.milestone_type === 'system_completion' ? 'מוכנות מתקן' :
-                               payment.milestone_type === 'grid_connection' ? 'חיבור לרשת' : payment.milestone_type}
-                            </span>
-                          </>
-                        )}
+              paymentMilestones.map(milestone => (
+                <div key={milestone.id} className={`p-3 rounded-xl border transition-all ${
+                  milestone.status === 'paid' 
+                    ? 'bg-[#0a1a1f] border-[rgba(45,212,168,0.08)]' 
+                    : 'bg-blue-500/5 border-blue-500/20'
+                }`}>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className={`w-4 h-4 ${milestone.status === 'paid' ? 'text-[#2dd4a8]' : 'text-blue-400'}`} />
+                      <div>
+                        <p className={`text-sm font-medium ${milestone.status === 'paid' ? 'text-gray-400 line-through' : 'text-white'}`}>
+                          {milestone.description || 'תשלום'}
+                        </p>
+                        <p className="text-[10px] text-gray-500">
+                          {milestone.type === 'deposit' ? 'מקדמה' :
+                           milestone.type === 'milestone' ? 'אבן דרך' :
+                           milestone.type === 'installment' ? 'תשלום' :
+                           milestone.type === 'final_payment' ? 'תשלום סופי' : milestone.type}
+                          {milestone.installments > 1 && ` • ${milestone.installments} תשלומים`}
+                        </p>
                       </div>
                     </div>
+                    <p className={`text-sm font-bold flex-shrink-0 ${milestone.status === 'paid' ? 'text-gray-500' : 'text-blue-400'}`}>
+                      ₪{milestone.amount.toLocaleString()}
+                    </p>
                   </div>
-                  <p className="text-sm font-bold text-[#2dd4a8]">₪{payment.amount.toLocaleString()}</p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingMilestone(milestone);
+                        setMilestoneData(milestone);
+                        setMilestoneOpen(true);
+                      }}
+                      className="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                    >
+                      <Edit className="w-3 h-3" />
+                      ערוך
+                    </button>
+                    <button
+                      onClick={() => deleteMilestoneMutation.mutate(milestone.id)}
+                      className="text-[10px] text-red-400 hover:text-red-300 flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      מחק
+                    </button>
+                  </div>
                 </div>
               ))
             )}
           </div>
+
+          {/* Completed Payments */}
+          {payments.filter(p => p.status === 'completed').length > 0 && (
+            <div className="mt-6 pt-4 border-t border-[rgba(45,212,168,0.1)]">
+              <h4 className="text-sm font-semibold text-gray-400 mb-3">תשלומים שהתקבלו</h4>
+              <div className="space-y-2">
+                {payments.filter(p => p.status === 'completed').map(payment => (
+                  <div key={payment.id} className="flex items-center justify-between p-2 rounded-lg bg-[#0a1a1f]">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3 h-3 text-[#2dd4a8]" />
+                      <p className="text-xs text-gray-300">{payment.description || 'תשלום'}</p>
+                    </div>
+                    <p className="text-xs font-bold text-[#2dd4a8]">₪{payment.amount.toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Expenses Panel */}
@@ -335,6 +436,21 @@ export default function ProjectFinancials({ project }) {
         setData={setExpenseData}
         onSubmit={() => createExpenseMutation.mutate(expenseData)}
         submitting={createExpenseMutation.isPending}
+      />
+
+      <FormModal
+        open={milestoneOpen}
+        onClose={() => {
+          setMilestoneOpen(false);
+          setMilestoneData({});
+          setEditingMilestone(null);
+        }}
+        title={editingMilestone ? 'עריכת אבן דרך' : 'אבן דרך חדשה'}
+        fields={milestoneFields}
+        data={milestoneData}
+        setData={setMilestoneData}
+        onSubmit={() => createMilestoneMutation.mutate(milestoneData)}
+        submitting={createMilestoneMutation.isPending}
       />
     </div>
   );
