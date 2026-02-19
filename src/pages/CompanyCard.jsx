@@ -58,7 +58,7 @@ export default function CompanyCard() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading || !company) {
     return <div className="p-8"><div className="animate-pulse h-96 bg-[#142e38] rounded-xl" /></div>;
   }
 
