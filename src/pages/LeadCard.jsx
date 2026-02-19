@@ -308,19 +308,28 @@ export default function LeadCard() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="bg-[#142e38] border-b border-[rgba(45,212,168,0.1)]">
-            <TabsTrigger value="overview">פרטים</TabsTrigger>
-            <TabsTrigger value="timeline">פעילות</TabsTrigger>
-            <TabsTrigger value="chat">צ'אט פנימי</TabsTrigger>
-            <TabsTrigger value="tasks">משימות</TabsTrigger>
-            <TabsTrigger value="calls">שיחות</TabsTrigger>
-            <TabsTrigger value="files">קבצים</TabsTrigger>
-          </TabsList>
+          <div className="border-b border-[rgba(45,212,168,0.1)] bg-[#0d1f26] sticky top-0 z-10">
+            <TabsList className="bg-transparent w-full justify-start px-3 sm:px-6 py-0 h-auto overflow-x-auto">
+              <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">פרטים</TabsTrigger>
+              <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">פעילות</TabsTrigger>
+              <TabsTrigger value="chat" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">צ'אט</TabsTrigger>
+              <TabsTrigger value="tasks" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">משימות</TabsTrigger>
+              <TabsTrigger value="calls" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">שיחות</TabsTrigger>
+              <TabsTrigger value="files" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">קבצים</TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="overview" className="mt-4 sm:mt-6">
+          <TabsContent value="overview" className="p-3 sm:p-6 space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div className="gesi-card p-4 sm:p-6 space-y-3 sm:space-y-4">
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">פרטי ליד</h3>
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 sm:p-6">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-[#2dd4a8]/10 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-[#2dd4a8]" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-semibold text-white">פרטי ליד</h3>
+                </div>
+                <div className="space-y-3">{editMode ? (
+                  <div className="space-y-3">
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
@@ -344,21 +353,28 @@ export default function LeadCard() {
                       <Input defaultValue={lead.city} onBlur={(e) => handleQuickUpdate('city', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
                     </div>
                   </div>
-                ) : (
-                  <>
-                    <InfoRow label="שם" value={lead.full_name} />
-                    <InfoRow label="טלפון" value={lead.phone} />
-                    <InfoRow label="אימייל" value={lead.email} />
-                    <InfoRow label="כתובת" value={lead.address} />
-                    <InfoRow label="עיר" value={lead.city} />
-                    <InfoRow label="מקור" value={lead.source} />
-                    <InfoRow label="סוכן" value={lead.assigned_agent} />
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <InfoRow label="שם" value={lead.full_name} />
+                      <InfoRow label="טלפון" value={lead.phone} />
+                      <InfoRow label="אימייל" value={lead.email} />
+                      <InfoRow label="כתובת" value={lead.address} />
+                      <InfoRow label="עיר" value={lead.city} />
+                      <InfoRow label="מקור" value={lead.source} />
+                      <InfoRow label="סוכן" value={lead.assigned_agent} />
+                    </>
+                  )}
+                </div>
               </div>
 
-              <div className="gesi-card p-4 sm:p-6 space-y-3 sm:space-y-4">
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">מידע נוסף</h3>
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 sm:p-6">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-semibold text-white">מידע נוסף</h3>
+                </div>
+                <div className="space-y-3">
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
@@ -379,33 +395,34 @@ export default function LeadCard() {
                       <Textarea defaultValue={lead.notes} onBlur={(e) => handleQuickUpdate('notes', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white min-h-[100px]" />
                     </div>
                   </div>
-                ) : (
-                  <>
-                    <InfoRow label="סוג נכס" value={lead.property_type === 'residential' ? 'מגורים' : lead.property_type === 'commercial' ? 'מסחרי' : lead.property_type === 'industrial' ? 'תעשייתי' : '—'} />
-                    <InfoRow label="הערות" value={lead.notes} />
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <InfoRow label="סוג נכס" value={lead.property_type === 'residential' ? 'מגורים' : lead.property_type === 'commercial' ? 'מסחרי' : lead.property_type === 'industrial' ? 'תעשייתי' : '—'} />
+                      <InfoRow label="הערות" value={lead.notes} />
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline">
+          <TabsContent value="timeline" className="p-3 sm:p-6">
             <ActivityTimeline activities={activities} />
           </TabsContent>
 
-          <TabsContent value="chat">
+          <TabsContent value="chat" className="p-3 sm:p-6">
             <InternalChat entityType="lead" entityId={id} />
           </TabsContent>
 
-          <TabsContent value="tasks">
+          <TabsContent value="tasks" className="p-3 sm:p-6">
             <TasksPanel entityType="lead" entityId={id} />
           </TabsContent>
 
-          <TabsContent value="calls">
+          <TabsContent value="calls" className="p-3 sm:p-6">
             <CallsLog entityType="lead" entityId={id} />
           </TabsContent>
 
-          <TabsContent value="files">
+          <TabsContent value="files" className="p-3 sm:p-6">
             <FilesPanel entityType="lead" entityId={id} />
           </TabsContent>
         </Tabs>
@@ -416,9 +433,9 @@ export default function LeadCard() {
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex justify-between items-center py-2 border-b border-[rgba(45,212,168,0.05)]">
-      <span className="text-sm text-gray-400">{label}</span>
-      <span className="text-sm text-white font-medium">{value || '—'}</span>
+    <div className="flex justify-between items-center py-3 border-b border-[rgba(45,212,168,0.05)] last:border-0 hover:bg-[rgba(45,212,168,0.02)] transition-colors rounded-lg px-2">
+      <span className="text-sm text-gray-400 font-medium">{label}</span>
+      <span className="text-sm text-white font-semibold">{value || '—'}</span>
     </div>
   );
 }
