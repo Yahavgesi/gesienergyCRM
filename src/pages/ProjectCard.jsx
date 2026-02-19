@@ -3,9 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Edit, DollarSign, Upload, Zap, User, CheckCircle2, Briefcase } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowRight, Edit, DollarSign, Upload, Zap, User, CheckCircle2, Briefcase, MessageSquare, Clock } from "lucide-react";
 import { createPageUrl } from "../utils";
 import StatusBadge from "../components/shared/StatusBadge";
 import FormModal from "../components/crm/FormModal";
@@ -26,6 +28,7 @@ export default function ProjectCard() {
   const [editData, setEditData] = useState({});
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentData, setPaymentData] = useState({ amount: '', type: 'deposit', installments: 1 });
+  const [stepNotes, setStepNotes] = useState({});
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['project', id],
@@ -56,12 +59,47 @@ export default function ProjectCard() {
     enabled: !!id,
   });
 
+  const { data: stepActivities = [] } = useQuery({
+    queryKey: ['step-activities', id],
+    queryFn: async () => {
+      const allActivities = await base44.entities.ActivityLog.filter({ entity_type: 'project', entity_id: id }, '-created_date');
+      return allActivities.filter(a => a.metadata?.step_id);
+    },
+    enabled: !!id,
+  });
+
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.Project.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['project', id]);
       queryClient.invalidateQueries(['crm-projects']);
       setEditOpen(false);
+    },
+  });
+
+  const updateStepMutation = useMutation({
+    mutationFn: ({ stepId, data }) => base44.entities.ProjectStep.update(stepId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['project-steps', id]);
+    },
+  });
+
+  const addStepNoteMutation = useMutation({
+    mutationFn: async ({ stepId, note }) => {
+      const user = await base44.auth.me();
+      await base44.entities.ActivityLog.create({
+        entity_type: 'project',
+        entity_id: id,
+        action_type: 'note_added',
+        description: note,
+        actor_email: user.email,
+        actor_name: user.full_name || user.email,
+        metadata: { step_id: stepId }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['step-activities', id]);
+      setStepNotes({});
     },
   });
 
@@ -273,26 +311,122 @@ export default function ProjectCard() {
           </TabsContent>
 
           <TabsContent value="steps" className="p-6">
-            <div className="space-y-3">
-              {steps.map((step, idx) => (
-                <div key={step.id} className="rounded-xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 hover:border-[rgba(45,212,168,0.2)] transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold ${
-                      step.status === 'completed' ? 'bg-[#2dd4a8]/20 text-[#2dd4a8] border-2 border-[#2dd4a8]' :
-                      step.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border-2 border-blue-400' :
-                      'bg-gray-500/10 text-gray-500 border-2 border-gray-600'
-                    }`}>
-                      {step.step_index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-white mb-1">{step.name}</h4>
-                      <p className="text-xs text-gray-400">{step.description}</p>
-                    </div>
-                    <StatusBadge status={step.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Accordion type="single" collapsible className="space-y-3">
+              {steps.map((step, idx) => {
+                const stepActivityList = stepActivities.filter(a => a.metadata?.step_id === step.id);
+                return (
+                  <AccordionItem key={step.id} value={step.id} className="rounded-xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] overflow-hidden">
+                    <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-[rgba(45,212,168,0.02)] transition-colors">
+                      <div className="flex items-center gap-4 w-full">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold ${
+                          step.status === 'completed' ? 'bg-[#2dd4a8]/20 text-[#2dd4a8] border-2 border-[#2dd4a8]' :
+                          step.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border-2 border-blue-400' :
+                          'bg-gray-500/10 text-gray-500 border-2 border-gray-600'
+                        }`}>
+                          {step.step_index + 1}
+                        </div>
+                        <div className="flex-1 text-right">
+                          <h4 className="text-sm font-semibold text-white mb-1">{step.name}</h4>
+                          <p className="text-xs text-gray-400">{step.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {stepActivityList.length > 0 && (
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <MessageSquare className="w-3 h-3" />
+                              {stepActivityList.length}
+                            </span>
+                          )}
+                          <StatusBadge status={step.status} />
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4 pt-2 border-t border-[rgba(45,212,168,0.05)]">
+                      <div className="space-y-4">
+                        {/* Step Details */}
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          {step.eta && (
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <Clock className="w-3 h-3" />
+                              <span>צפי סיום: {new Date(step.eta).toLocaleDateString('he-IL')}</span>
+                            </div>
+                          )}
+                          {step.completed_date && (
+                            <div className="flex items-center gap-2 text-[#2dd4a8]">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>הושלם: {new Date(step.completed_date).toLocaleDateString('he-IL')}</span>
+                            </div>
+                          )}
+                          {step.blocker_reason && (
+                            <div className="col-span-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400">
+                              <span className="font-semibold">חסימה: </span>{step.blocker_reason}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Status Update */}
+                        <div>
+                          <label className="text-xs text-gray-400 block mb-2">עדכון סטטוס</label>
+                          <select
+                            value={step.status}
+                            onChange={(e) => updateStepMutation.mutate({ stepId: step.id, data: { status: e.target.value } })}
+                            className="w-full bg-[#142e38] border border-[rgba(45,212,168,0.1)] rounded-lg px-3 py-2 text-sm text-white"
+                          >
+                            <option value="pending">ממתין</option>
+                            <option value="in_progress">בביצוע</option>
+                            <option value="waiting_customer">ממתין ללקוח</option>
+                            <option value="completed">הושלם</option>
+                            <option value="blocked">חסום</option>
+                          </select>
+                        </div>
+
+                        {/* Activity Log */}
+                        {stepActivityList.length > 0 && (
+                          <div>
+                            <h5 className="text-xs font-semibold text-gray-400 mb-2">עדכונים</h5>
+                            <div className="space-y-2">
+                              {stepActivityList.map(activity => (
+                                <div key={activity.id} className="bg-[#142e38]/50 rounded-lg p-3 text-xs">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <span className="text-white font-medium">{activity.actor_name || 'מערכת'}</span>
+                                    <span className="text-gray-500">{new Date(activity.created_date).toLocaleDateString('he-IL')}</span>
+                                  </div>
+                                  <p className="text-gray-300">{activity.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Add Note */}
+                        <div>
+                          <label className="text-xs text-gray-400 block mb-2">הוסף הערה</label>
+                          <div className="flex gap-2">
+                            <Textarea
+                              value={stepNotes[step.id] || ''}
+                              onChange={(e) => setStepNotes({ ...stepNotes, [step.id]: e.target.value })}
+                              placeholder="כתוב הערה או עדכון..."
+                              className="bg-[#142e38] border-[rgba(45,212,168,0.1)] text-white placeholder-gray-600 text-sm min-h-[60px]"
+                            />
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (stepNotes[step.id]?.trim()) {
+                                addStepNoteMutation.mutate({ stepId: step.id, note: stepNotes[step.id] });
+                              }
+                            }}
+                            disabled={!stepNotes[step.id]?.trim() || addStepNoteMutation.isPending}
+                            className="mt-2 bg-[#2dd4a8] hover:bg-[#1fa882] text-white"
+                          >
+                            שמור הערה
+                          </Button>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
           </TabsContent>
 
           <TabsContent value="documents">
