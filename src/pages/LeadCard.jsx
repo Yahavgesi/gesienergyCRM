@@ -328,8 +328,7 @@ export default function LeadCard() {
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold text-white">פרטי ליד</h3>
                 </div>
-                <div className="space-y-3">{editMode ? (
-                  <div className="space-y-3">
+                <div className="space-y-3">
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
@@ -353,17 +352,17 @@ export default function LeadCard() {
                       <Input defaultValue={lead.city} onBlur={(e) => handleQuickUpdate('city', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
                     </div>
                   </div>
-                  ) : (
-                    <>
-                      <InfoRow label="שם" value={lead.full_name} />
-                      <InfoRow label="טלפון" value={lead.phone} />
-                      <InfoRow label="אימייל" value={lead.email} />
-                      <InfoRow label="כתובת" value={lead.address} />
-                      <InfoRow label="עיר" value={lead.city} />
-                      <InfoRow label="מקור" value={lead.source} />
-                      <InfoRow label="סוכן" value={lead.assigned_agent} />
-                    </>
-                  )}
+                ) : (
+                  <>
+                    <InfoRow label="שם" value={lead.full_name} />
+                    <InfoRow label="טלפון" value={lead.phone} />
+                    <InfoRow label="אימייל" value={lead.email} />
+                    <InfoRow label="כתובת" value={lead.address} />
+                    <InfoRow label="עיר" value={lead.city} />
+                    <InfoRow label="מקור" value={lead.source} />
+                    <InfoRow label="סוכן" value={lead.assigned_agent} />
+                  </>
+                )}
                 </div>
               </div>
 
@@ -395,12 +394,12 @@ export default function LeadCard() {
                       <Textarea defaultValue={lead.notes} onBlur={(e) => handleQuickUpdate('notes', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white min-h-[100px]" />
                     </div>
                   </div>
-                  ) : (
-                    <>
-                      <InfoRow label="סוג נכס" value={lead.property_type === 'residential' ? 'מגורים' : lead.property_type === 'commercial' ? 'מסחרי' : lead.property_type === 'industrial' ? 'תעשייתי' : '—'} />
-                      <InfoRow label="הערות" value={lead.notes} />
-                    </>
-                  )}
+                ) : (
+                  <>
+                    <InfoRow label="סוג נכס" value={lead.property_type === 'residential' ? 'מגורים' : lead.property_type === 'commercial' ? 'מסחרי' : lead.property_type === 'industrial' ? 'תעשייתי' : '—'} />
+                    <InfoRow label="הערות" value={lead.notes} />
+                  </>
+                )}
                 </div>
               </div>
             </div>
