@@ -6,7 +6,7 @@ import GesiLogo from "./components/shared/GesiLogo";
 import { Toaster } from "sonner";
 import {
   Home, FileText, CreditCard, ShoppingBag, MessageCircle,
-  LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen,
+  LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen, PieChart,
   ClipboardList, Calendar, DollarSign, Package, Settings, Bell,
   BarChart3, Zap, ChevronLeft, ChevronRight, LogOut, Menu, X, Building2,
   Truck, Warehouse, Receipt, UserCheck, Briefcase, Mail, Wrench,
@@ -32,6 +32,7 @@ const crmNav = [
     { name: "הצעות מחיר", icon: FileCheck, page: "CrmQuotes" },
     { name: "מסמכים", icon: FolderOpen, page: "CrmDocuments" },
     { name: "פרויקטים", icon: ClipboardList, page: "CrmProjects" },
+    { name: "ניהול פרויקטים", icon: Kanban, page: "CrmProjectManagement" },
     { name: "משימות", icon: Calendar, page: "CrmTasks" },
   ]},
   { section: "כספים", items: [
@@ -49,7 +50,6 @@ const crmNav = [
   { section: "דוחות", items: [
     { name: "דוחות כלליים", icon: BarChart3, page: "CrmReportsHub" },
     { name: "פיננסי", icon: TrendingUp, page: "CrmFinancials" },
-    { name: "ניהול פרויקטים", icon: PieChart, page: "CrmProjectManagement" },
   ]},
   { section: "כלים", items: [
     { name: "תיבת דואר", icon: Mail, page: "CrmInbox" },
