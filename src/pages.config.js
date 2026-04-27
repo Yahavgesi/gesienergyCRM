@@ -57,6 +57,11 @@ import CrmInventory from './pages/CrmInventory';
 import CrmExpenses from './pages/CrmExpenses';
 import CrmPayroll from './pages/CrmPayroll';
 import CrmChatCenter from './pages/CrmChatCenter';
+import CrmFinancials from './pages/CrmFinancials';
+import CrmInbox from './pages/CrmInbox';
+import CrmTools from './pages/CrmTools';
+import CrmProjectManagement from './pages/CrmProjectManagement';
+import CrmReportsHub from './pages/CrmReportsHub';
 import CrmCompanies from './pages/CrmCompanies';
 import CrmContacts from './pages/CrmContacts';
 import CrmCustomers from './pages/CrmCustomers';
@@ -95,6 +100,11 @@ export const PAGES = {
     "CrmExpenses": CrmExpenses,
     "CrmPayroll": CrmPayroll,
     "CrmChatCenter": CrmChatCenter,
+    "CrmFinancials": CrmFinancials,
+    "CrmInbox": CrmInbox,
+    "CrmTools": CrmTools,
+    "CrmProjectManagement": CrmProjectManagement,
+    "CrmReportsHub": CrmReportsHub,
     "CrmCompanies": CrmCompanies,
     "CrmContacts": CrmContacts,
     "CrmCustomers": CrmCustomers,

@@ -9,7 +9,8 @@ import {
   LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen,
   ClipboardList, Calendar, DollarSign, Package, Settings, Bell,
   BarChart3, Zap, ChevronLeft, ChevronRight, LogOut, Menu, X, Building2,
-  Truck, Warehouse, Receipt, UserCheck, Briefcase
+  Truck, Warehouse, Receipt, UserCheck, Briefcase, Mail, Wrench,
+  PieChart, TrendingUp
 } from "lucide-react";
 
 const customerNav = [
@@ -45,9 +46,17 @@ const crmNav = [
     { name: "ספקים", icon: Truck, page: "CrmSuppliers" },
     { name: "מחסן", icon: Warehouse, page: "CrmInventory" },
   ]},
-  { section: "מערכת", items: [
+  { section: "דוחות", items: [
+    { name: "דוחות כלליים", icon: BarChart3, page: "CrmReportsHub" },
+    { name: "פיננסי", icon: TrendingUp, page: "CrmFinancials" },
+    { name: "ניהול פרויקטים", icon: PieChart, page: "CrmProjectManagement" },
+  ]},
+  { section: "כלים", items: [
+    { name: "תיבת דואר", icon: Mail, page: "CrmInbox" },
     { name: "צ'אט", icon: MessageCircle, page: "CrmChatCenter" },
-    { name: "דוחות", icon: BarChart3, page: "CrmReports" },
+    { name: "כלים", icon: Wrench, page: "CrmTools" },
+  ]},
+  { section: "מערכת", items: [
     { name: "הגדרות", icon: Settings, page: "CrmSettings" },
   ]},
 ];
