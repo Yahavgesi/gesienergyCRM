@@ -6,11 +6,11 @@ import GesiLogo from "./components/shared/GesiLogo";
 import { Toaster } from "sonner";
 import {
   Home, FileText, CreditCard, ShoppingBag, MessageCircle,
-  LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen, PieChart,
+  LayoutDashboard, Users, Target, Kanban, FileCheck, FolderOpen,
   ClipboardList, Calendar, DollarSign, Package, Settings, Bell,
   BarChart3, Zap, ChevronLeft, ChevronRight, LogOut, Menu, X, Building2,
   Truck, Warehouse, Receipt, UserCheck, Briefcase, Mail, Wrench,
-  PieChart, TrendingUp
+  TrendingUp
 } from "lucide-react";
 
 const customerNav = [
