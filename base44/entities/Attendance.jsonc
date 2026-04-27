@@ -1,0 +1,50 @@
+{
+  "name": "Attendance",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e2\u05d5\u05d1\u05d3"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "check_in": {
+      "type": "string",
+      "description": "\u05e9\u05e2\u05ea \u05db\u05e0\u05d9\u05e1\u05d4"
+    },
+    "check_out": {
+      "type": "string",
+      "description": "\u05e9\u05e2\u05ea \u05d9\u05e6\u05d9\u05d0\u05d4"
+    },
+    "total_hours": {
+      "type": "number"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "work",
+        "sick",
+        "vacation",
+        "holiday",
+        "absence"
+      ],
+      "default": "work"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "approved": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "employee_id",
+    "date"
+  ]
+}

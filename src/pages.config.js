@@ -49,6 +49,13 @@
  */
 import CompanyCard from './pages/CompanyCard';
 import ContactCard from './pages/ContactCard';
+import CrmEmployees from './pages/CrmEmployees';
+import EmployeeCard from './pages/EmployeeCard';
+import CrmAttendance from './pages/CrmAttendance';
+import CrmSuppliers from './pages/CrmSuppliers';
+import CrmInventory from './pages/CrmInventory';
+import CrmExpenses from './pages/CrmExpenses';
+import CrmPayroll from './pages/CrmPayroll';
 import CrmChatCenter from './pages/CrmChatCenter';
 import CrmCompanies from './pages/CrmCompanies';
 import CrmContacts from './pages/CrmContacts';
@@ -80,6 +87,13 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "CompanyCard": CompanyCard,
     "ContactCard": ContactCard,
+    "CrmEmployees": CrmEmployees,
+    "EmployeeCard": EmployeeCard,
+    "CrmAttendance": CrmAttendance,
+    "CrmSuppliers": CrmSuppliers,
+    "CrmInventory": CrmInventory,
+    "CrmExpenses": CrmExpenses,
+    "CrmPayroll": CrmPayroll,
     "CrmChatCenter": CrmChatCenter,
     "CrmCompanies": CrmCompanies,
     "CrmContacts": CrmContacts,

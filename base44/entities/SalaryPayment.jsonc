@@ -1,0 +1,57 @@
+{
+  "name": "SalaryPayment",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string"
+    },
+    "employee_name": {
+      "type": "string"
+    },
+    "month": {
+      "type": "string",
+      "description": "\u05d7\u05d5\u05d3\u05e9 \u05ea\u05e9\u05dc\u05d5\u05dd YYYY-MM"
+    },
+    "base_salary": {
+      "type": "number"
+    },
+    "commission": {
+      "type": "number",
+      "default": 0
+    },
+    "bonuses": {
+      "type": "number",
+      "default": 0
+    },
+    "deductions": {
+      "type": "number",
+      "default": 0
+    },
+    "total": {
+      "type": "number"
+    },
+    "hours_worked": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "employee_id",
+    "month"
+  ]
+}
