@@ -47,6 +47,30 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AdminDashboard from './pages/AdminDashboard';
+import AllProjects from './pages/AllProjects';
+import AttendanceTracking from './pages/AttendanceTracking';
+import BankTransactions from './pages/BankTransactions';
+import CustomerBalances from './pages/CustomerBalances';
+import CustomerDetails from './pages/CustomerDetails';
+import CustomerForm from './pages/CustomerForm';
+import EmployeeManagement from './pages/EmployeeManagement';
+import FinanceDashboard from './pages/FinanceDashboard';
+import FinancialOverview from './pages/FinancialOverview';
+import KnowledgeCenter from './pages/KnowledgeCenter';
+import PasswordManager from './pages/PasswordManager';
+import PayrollDashboard from './pages/PayrollDashboard';
+import ProjectCalculator from './pages/ProjectCalculator';
+import ProjectDetails from './pages/ProjectDetails';
+import ProjectForm from './pages/ProjectForm';
+import ProjectsDashboard from './pages/ProjectsDashboard';
+import ProjectsOverview from './pages/ProjectsOverview';
+import QuoteBuilder from './pages/QuoteBuilder';
+import QuotesList from './pages/QuotesList';
+import SupplierPayables from './pages/SupplierPayables';
+import SupplierPaymentHistory from './pages/SupplierPaymentHistory';
+import SuppliersDirectory from './pages/SuppliersDirectory';
+import TemplateSelection from './pages/TemplateSelection';
 import CompanyCard from './pages/CompanyCard';
 import ContactCard from './pages/ContactCard';
 import CrmChatCenter from './pages/CrmChatCenter';
@@ -78,6 +102,30 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminDashboard": AdminDashboard,
+    "AllProjects": AllProjects,
+    "AttendanceTracking": AttendanceTracking,
+    "BankTransactions": BankTransactions,
+    "CustomerBalances": CustomerBalances,
+    "CustomerDetails": CustomerDetails,
+    "CustomerForm": CustomerForm,
+    "EmployeeManagement": EmployeeManagement,
+    "FinanceDashboard": FinanceDashboard,
+    "FinancialOverview": FinancialOverview,
+    "KnowledgeCenter": KnowledgeCenter,
+    "PasswordManager": PasswordManager,
+    "PayrollDashboard": PayrollDashboard,
+    "ProjectCalculator": ProjectCalculator,
+    "ProjectDetails": ProjectDetails,
+    "ProjectForm": ProjectForm,
+    "ProjectsDashboard": ProjectsDashboard,
+    "ProjectsOverview": ProjectsOverview,
+    "QuoteBuilder": QuoteBuilder,
+    "QuotesList": QuotesList,
+    "SupplierPayables": SupplierPayables,
+    "SupplierPaymentHistory": SupplierPaymentHistory,
+    "SuppliersDirectory": SuppliersDirectory,
+    "TemplateSelection": TemplateSelection,
     "CompanyCard": CompanyCard,
     "ContactCard": ContactCard,
     "CrmChatCenter": CrmChatCenter,
