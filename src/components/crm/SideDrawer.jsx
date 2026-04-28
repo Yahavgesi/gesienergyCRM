@@ -44,10 +44,10 @@ export default function SideDrawer({
         className="fixed inset-0 bg-black/50 z-40"
       />
       <motion.div
-        initial={{ x: -400, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -400, opacity: 0 }}
+        initial={{ x: 400, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 400, opacity: 0 }}
         transition={{ type: "spring", damping: 28, stiffness: 280 }}
-        className="fixed top-0 left-0 h-full w-80 z-50 flex flex-col shadow-2xl"
-        style={{ background: '#0d1f26', borderRight: '1px solid rgba(45,212,168,0.12)' }}
+        className="fixed top-0 right-0 h-full w-80 z-50 flex flex-col shadow-2xl"
+        style={{ background: '#0d1f26', borderLeft: '1px solid rgba(45,212,168,0.12)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
