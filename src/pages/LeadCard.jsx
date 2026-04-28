@@ -18,7 +18,7 @@ import ActivityTimeline from "../components/crm/ActivityTimeline";
 import InternalChat from "../components/crm/InternalChat";
 import TasksPanel from "../components/crm/TasksPanel";
 import FilesPanel from "../components/crm/FilesPanel";
-import CallsLog from "../components/crm/CallsLog";
+import EmailPanel from "../components/crm/EmailPanel";
 import LeadReminderModal from "../components/leads/LeadReminderModal";
 import LeadStageDrawer from "../components/leads/LeadStageDrawer";
 import { motion } from "framer-motion";
@@ -53,6 +53,11 @@ export default function LeadCard() {
     queryKey: ['activities', 'lead', id],
     queryFn: () => base44.entities.ActivityLog.filter({ entity_type: 'lead', entity_id: id }, '-created_date'),
     enabled: !!id,
+  });
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['system-users'],
+    queryFn: () => base44.entities.User.list(),
   });
 
   const { data: nearbyCustomers = [] } = useQuery({
@@ -313,7 +318,7 @@ export default function LeadCard() {
               <TabsTrigger value="timeline" className={TAB}>פעילות ({activities.length})</TabsTrigger>
               <TabsTrigger value="chat" className={TAB}>צ'אט</TabsTrigger>
               <TabsTrigger value="tasks" className={TAB}>משימות</TabsTrigger>
-              <TabsTrigger value="calls" className={TAB}>שיחות</TabsTrigger>
+              <TabsTrigger value="email" className={TAB}>דואר אלקטרוני</TabsTrigger>
               <TabsTrigger value="files" className={TAB}>קבצים</TabsTrigger>
             </TabsList>
           </div>
@@ -333,7 +338,7 @@ export default function LeadCard() {
                     {[
                       { key: 'full_name', label: 'שם מלא' }, { key: 'phone', label: 'טלפון' },
                       { key: 'email', label: 'אימייל' }, { key: 'address', label: 'כתובת' },
-                      { key: 'city', label: 'עיר' }, { key: 'assigned_agent', label: 'סוכן מכירות' },
+                      { key: 'city', label: 'עיר' },
                     ].map(f => (
                       <div key={f.key}>
                         <Label className="text-xs text-gray-400">{f.label}</Label>
@@ -341,6 +346,21 @@ export default function LeadCard() {
                           className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
                       </div>
                     ))}
+                    <div>
+                      <Label className="text-xs text-gray-400">סוכן מכירות</Label>
+                      <Select defaultValue={lead.assigned_agent || ''} onValueChange={v => handleQuickUpdate('assigned_agent', v)}>
+                        <SelectTrigger className="bg-[#142e38] border-[#2dd4a8]/20 text-white">
+                          <SelectValue placeholder="בחר סוכן..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#142e38] border-[#2dd4a8]/15">
+                          {users.map(u => (
+                            <SelectItem key={u.id} value={u.email} className="text-gray-300 focus:bg-[#1a3a47] focus:text-white">
+                              {u.full_name || u.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -406,8 +426,13 @@ export default function LeadCard() {
             <TasksPanel entityType="lead" entityId={id} />
           </TabsContent>
 
-          <TabsContent value="calls" className="p-3 sm:p-6">
-            <CallsLog entityType="lead" entityId={id} />
+          <TabsContent value="email" className="p-3 sm:p-6">
+            <EmailPanel
+              entityType="lead"
+              entityId={id}
+              toEmail={lead.email}
+              fromEmail={lead.assigned_agent}
+            />
           </TabsContent>
 
           <TabsContent value="files" className="p-3 sm:p-6">
