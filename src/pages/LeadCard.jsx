@@ -8,7 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Edit, Phone, Mail, MapPin, CheckCircle2, TrendingUp, FileText, ExternalLink, Users, MapPinned, Zap } from "lucide-react";
+import {
+  ArrowRight, Edit, Phone, Mail, MapPin, CheckCircle2, TrendingUp,
+  FileText, ExternalLink, Users, MapPinned, Zap, Bell, MessageSquare
+} from "lucide-react";
 import { createPageUrl } from "../utils";
 import StatusBadge from "../components/shared/StatusBadge";
 import ActivityTimeline from "../components/crm/ActivityTimeline";
@@ -16,18 +19,20 @@ import InternalChat from "../components/crm/InternalChat";
 import TasksPanel from "../components/crm/TasksPanel";
 import FilesPanel from "../components/crm/FilesPanel";
 import CallsLog from "../components/crm/CallsLog";
-import { motion, AnimatePresence } from "framer-motion";
+import LeadReminderModal from "../components/leads/LeadReminderModal";
+import LeadStageDrawer from "../components/leads/LeadStageDrawer";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 const salesStages = [
-  { value: 'new_lead', label: 'ליד חדש', color: 'bg-gray-500' },
-  { value: 'initial_contact', label: 'יצירת קשר ראשוני', color: 'bg-blue-500' },
-  { value: 'site_survey', label: 'סיור באתר', color: 'bg-purple-500' },
-  { value: 'quote_sent', label: 'הצעת מחיר נשלחה', color: 'bg-yellow-500' },
-  { value: 'negotiation', label: 'משא ומתן', color: 'bg-orange-500' },
-  { value: 'closing', label: 'סגירה', color: 'bg-green-500' },
-  { value: 'won', label: 'נסגר בהצלחה', color: 'bg-emerald-600' },
-  { value: 'lost', label: 'אבוד', color: 'bg-red-500' },
+  { value: 'new_lead', label: 'ליד חדש', color: 'bg-gray-500', hex: '#94a3b8' },
+  { value: 'initial_contact', label: 'יצירת קשר ראשוני', color: 'bg-blue-500', hex: '#60a5fa' },
+  { value: 'site_survey', label: 'סיור באתר', color: 'bg-purple-500', hex: '#a78bfa' },
+  { value: 'quote_sent', label: 'הצעת מחיר נשלחה', color: 'bg-yellow-500', hex: '#fbbf24' },
+  { value: 'negotiation', label: 'משא ומתן', color: 'bg-orange-500', hex: '#fb923c' },
+  { value: 'closing', label: 'סגירה', color: 'bg-green-500', hex: '#22c55e' },
+  { value: 'won', label: 'נסגר בהצלחה', color: 'bg-emerald-600', hex: '#2dd4a8' },
+  { value: 'lost', label: 'אבוד', color: 'bg-red-500', hex: '#ef4444' },
 ];
 
 export default function LeadCard() {
@@ -36,7 +41,8 @@ export default function LeadCard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
-  const [editData, setEditData] = useState({});
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [stageDrawer, setStageDrawer] = useState(null); // stage object
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['lead', id],
@@ -54,13 +60,9 @@ export default function LeadCard() {
     queryFn: async () => {
       if (!lead?.city) return [];
       const projects = await base44.entities.Project.filter({ status: 'completed' });
-      const customersWithProjects = [];
-      for (const project of projects.slice(0, 10)) {
-        if (project.address?.includes(lead.city) || project.customer_name?.includes(lead.city)) {
-          customersWithProjects.push(project);
-        }
-      }
-      return customersWithProjects;
+      return projects.slice(0, 10).filter(p =>
+        p.address?.includes(lead.city) || p.customer_name?.includes(lead.city)
+      );
     },
     enabled: !!lead?.city,
   });
@@ -86,53 +88,55 @@ export default function LeadCard() {
         assigned_agent: lead.assigned_agent,
       });
       await base44.entities.Lead.update(id, { status: 'converted' });
-      await base44.entities.ActivityLog.create({
-        entity_type: 'lead',
-        entity_id: id,
-        action_type: 'status_change',
-        description: `ליד הומר ללקוח: ${contact.full_name}`,
-      });
+      await logActivity('status_change', `ליד הומר ללקוח: ${contact.full_name}`);
       return contact;
     },
     onSuccess: (contact) => {
       queryClient.invalidateQueries(['lead', id]);
-      toast.success('✅ הומר לאיש קשר בהצלחה!', {
-        description: 'עובר לכרטיס איש הקשר...',
-        duration: 2000,
-      });
-      setTimeout(() => {
-        navigate(createPageUrl(`ContactCard?id=${contact.id}`));
-      }, 1000);
+      toast.success('✅ הומר לאיש קשר בהצלחה!', { duration: 2000 });
+      setTimeout(() => navigate(createPageUrl(`ContactCard?id=${contact.id}`)), 1000);
     },
   });
 
-  const handleQuickUpdate = async (field, value) => {
+  const logActivity = async (action_type, description, extra = {}) => {
+    const user = await base44.auth.me();
+    return base44.entities.ActivityLog.create({
+      entity_type: 'lead',
+      entity_id: id,
+      action_type,
+      description,
+      actor_email: user.email,
+      actor_name: user.full_name || user.email,
+      ...extra,
+    });
+  };
+
+  const handleQuickUpdate = async (field, value, label) => {
+    const oldVal = lead?.[field];
     updateMutation.mutate({ [field]: value });
-    
-    // Log sales stage changes
+
+    // Log every change
+    const fieldLabels = {
+      full_name: 'שם', phone: 'טלפון', email: 'אימייל', city: 'עיר',
+      address: 'כתובת', notes: 'הערות', estimated_kwp: 'kWp',
+      price_per_kwp: '₪/kWp', roof_size_sqm: 'גג', assigned_agent: 'סוכן',
+      property_type: 'סוג נכס',
+    };
+
     if (field === 'sales_stage') {
       const oldStage = salesStages.find(s => s.value === lead.sales_stage)?.label || 'לא ידוע';
       const newStage = salesStages.find(s => s.value === value)?.label || 'לא ידוע';
-      
-      await base44.entities.ActivityLog.create({
-        entity_type: 'lead',
-        entity_id: id,
-        action_type: 'stage_change',
-        description: `שלב עודכן: ${oldStage} → ${newStage}`,
-      });
-
-      // Auto-convert to contact when marked as "won"
+      await logActivity('stage_change', `שלב עודכן: ${oldStage} ← ${newStage}`);
       if (value === 'won' && lead.status !== 'converted') {
-        toast.success('🎉 ליד נסגר בהצלחה!', {
-          description: 'מעביר לאיש קשר ומכין הכל לפרויקט חדש...',
-          duration: 3000,
-        });
-        
-        setTimeout(() => {
-          convertMutation.mutate();
-        }, 1500);
+        toast.success('🎉 ליד נסגר בהצלחה!', { duration: 3000 });
+        setTimeout(() => convertMutation.mutate(), 1500);
       }
+    } else {
+      const fLabel = fieldLabels[field] || field;
+      await logActivity('status_change', `שדה עודכן: ${fLabel} שונה מ-"${oldVal || '—'}" ל-"${value}"`);
     }
+
+    queryClient.invalidateQueries(['activities', 'lead', id]);
   };
 
   if (isLoading) {
@@ -141,10 +145,12 @@ export default function LeadCard() {
 
   const currentStage = salesStages.find(s => s.value === lead.sales_stage) || salesStages[0];
   const currentStageIndex = salesStages.findIndex(s => s.value === lead.sales_stage);
+  const TAB = "data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap";
 
   return (
     <div className="min-h-screen p-3 sm:p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-5">
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex items-start gap-4">
@@ -152,154 +158,147 @@ export default function LeadCard() {
               <ArrowRight className="w-4 h-4" />
             </Button>
             <div>
-              <div className="flex items-center gap-3 mb-2 flex-wrap">
+              <div className="flex items-center gap-3 mb-1.5 flex-wrap">
                 <h1 className="text-2xl font-bold text-white">{lead.full_name}</h1>
                 <StatusBadge status={lead.status} />
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
-                {lead.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" />{lead.phone}</div>}
-                {lead.email && <div className="flex items-center gap-1"><Mail className="w-3 h-3" />{lead.email}</div>}
+                {lead.phone && <a href={`tel:${lead.phone}`} className="flex items-center gap-1 hover:text-[#2dd4a8] transition-colors"><Phone className="w-3 h-3" />{lead.phone}</a>}
+                {lead.email && <a href={`mailto:${lead.email}`} className="flex items-center gap-1 hover:text-[#2dd4a8] transition-colors"><Mail className="w-3 h-3" />{lead.email}</a>}
                 {lead.city && <div className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.city}</div>}
               </div>
             </div>
           </div>
 
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={() => setEditMode(!editMode)} className="border-gray-600 flex-1 sm:flex-initial">
-              <Edit className="w-4 h-4 ml-2" />
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setReminderOpen(true)} className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10">
+              <Bell className="w-4 h-4 ml-1.5" /> תזכורת
+            </Button>
+            <Button variant="outline" onClick={() => setEditMode(!editMode)} className="border-gray-600">
+              <Edit className="w-4 h-4 ml-1.5" />
               {editMode ? 'סיים עריכה' : 'ערוך'}
             </Button>
           </div>
         </div>
 
         {/* Sales Pipeline */}
-        <div className="gesi-card p-4 sm:p-6">
+        <div className="gesi-card p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-[#2dd4a8]" />
-            <h2 className="text-base sm:text-lg font-semibold text-white">שלב במסע המכירה</h2>
+            <h2 className="text-base font-semibold text-white">שלב במסע המכירה</h2>
+            <span className="text-xs text-gray-500 mr-auto">לחץ על שלב כדי לצפות ולתעד</span>
           </div>
-          
-          {/* Desktop Pipeline */}
-          <div className="hidden md:block relative">
-            <div className="flex justify-between items-center mb-4">
-              {salesStages.map((stage, idx) => (
-                <div key={stage.value} className="flex flex-col items-center flex-1">
-                  <button
-                    onClick={() => !editMode && handleQuickUpdate('sales_stage', stage.value)}
-                    disabled={!editMode}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all
-                      ${idx <= currentStageIndex ? stage.color : 'bg-gray-700'} text-white
-                      ${editMode ? 'cursor-pointer hover:scale-110' : 'cursor-default'}
-                    `}
-                  >
-                    {idx + 1}
-                  </button>
-                  <span className={`text-[10px] mt-2 text-center max-w-[70px] ${idx <= currentStageIndex ? 'text-white font-medium' : 'text-gray-500'}`}>
-                    {stage.label}
-                  </span>
-                </div>
-              ))}
+
+          {/* Desktop */}
+          <div className="hidden md:block relative mb-2">
+            <div className="flex justify-between items-start">
+              {salesStages.map((stage, idx) => {
+                const isActive = idx <= currentStageIndex;
+                const isCurrent = idx === currentStageIndex;
+                return (
+                  <div key={stage.value} className="flex flex-col items-center flex-1 relative">
+                    <button
+                      onClick={() => editMode ? handleQuickUpdate('sales_stage', stage.value) : setStageDrawer(stage)}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all z-10 relative
+                        ${isActive ? stage.color : 'bg-gray-800'} text-white
+                        ${isCurrent ? 'ring-2 ring-white/30 scale-110' : ''}
+                        hover:scale-110 cursor-pointer
+                      `}
+                      title={editMode ? `עבור ל: ${stage.label}` : `פתח: ${stage.label}`}
+                    >
+                      {isCurrent ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
+                    </button>
+                    <button
+                      onClick={() => setStageDrawer(stage)}
+                      className={`text-[9px] mt-1.5 text-center max-w-[72px] leading-tight transition-colors hover:text-[#2dd4a8]
+                        ${isActive ? 'text-white font-medium' : 'text-gray-600'}
+                      `}
+                    >
+                      {stage.label}
+                    </button>
+                    {/* Note indicator */}
+                    <button onClick={() => setStageDrawer(stage)}
+                      className="mt-1 text-[9px] text-gray-600 hover:text-[#2dd4a8] flex items-center gap-0.5 transition-colors">
+                      <MessageSquare className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-            <div className="absolute top-5 left-0 right-0 h-1 bg-gray-700 -z-10" style={{ width: '90%', marginLeft: '5%' }}>
-              <div className={`h-full ${currentStage.color} transition-all duration-500`} style={{ width: `${(currentStageIndex / (salesStages.length - 1)) * 100}%` }} />
+            {/* Progress bar */}
+            <div className="absolute top-5 left-[5%] right-[5%] h-0.5 bg-gray-700 -z-0">
+              <div className={`h-full ${currentStage.color} transition-all duration-500`}
+                style={{ width: currentStageIndex === 0 ? '0%' : `${(currentStageIndex / (salesStages.length - 1)) * 100}%` }} />
             </div>
           </div>
 
-          {/* Mobile Pipeline */}
+          {/* Mobile */}
           <div className="md:hidden space-y-2">
             {salesStages.map((stage, idx) => (
-              <button
-                key={stage.value}
-                onClick={() => editMode && handleQuickUpdate('sales_stage', stage.value)}
-                disabled={!editMode}
-                className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all
-                  ${idx <= currentStageIndex ? `${stage.color} text-white` : 'bg-gray-700/30 text-gray-500'}
-                  ${editMode ? 'active:scale-[0.98]' : ''}
-                `}
-              >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
-                  ${idx <= currentStageIndex ? 'bg-white/20' : 'bg-gray-600'}
-                `}>
-                  {idx + 1}
-                </div>
-                <span className="text-sm font-medium">{stage.label}</span>
-                {idx === currentStageIndex && <CheckCircle2 className="w-4 h-4 mr-auto" />}
-              </button>
+              <div key={stage.value} className="flex items-center gap-2">
+                <button
+                  onClick={() => editMode ? handleQuickUpdate('sales_stage', stage.value) : setStageDrawer(stage)}
+                  className={`flex-1 p-3 rounded-lg flex items-center gap-3 transition-all text-right
+                    ${idx <= currentStageIndex ? `${stage.color} text-white` : 'bg-gray-800/40 text-gray-500'}
+                  `}
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                    ${idx <= currentStageIndex ? 'bg-white/20' : 'bg-gray-600'}
+                  `}>
+                    {idx === currentStageIndex ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                  </div>
+                  <span className="text-sm font-medium">{stage.label}</span>
+                </button>
+                <button onClick={() => setStageDrawer(stage)}
+                  className="p-2 rounded-lg bg-gray-800/40 text-gray-500 hover:text-[#2dd4a8] transition-colors">
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+              </div>
             ))}
           </div>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <MetricCard
-            icon={<Zap className="w-5 h-5" />}
-            label="kWp משוער"
-            value={lead.estimated_kwp || '—'}
-            editable={editMode}
-            onSave={(val) => handleQuickUpdate('estimated_kwp', parseFloat(val))}
-          />
-          <MetricCard
-            icon={<TrendingUp className="w-5 h-5" />}
-            label="מחיר לקילו-וואט"
-            value={lead.price_per_kwp ? `₪${lead.price_per_kwp.toLocaleString()}` : '—'}
-            editable={editMode}
-            onSave={(val) => handleQuickUpdate('price_per_kwp', parseFloat(val))}
-          />
-          <MetricCard
-            icon={<MapPinned className="w-5 h-5" />}
-            label="גודל גג"
-            value={lead.roof_size_sqm ? `${lead.roof_size_sqm} מ"ר` : '—'}
-            editable={editMode}
-            onSave={(val) => handleQuickUpdate('roof_size_sqm', parseFloat(val))}
-          />
-          <div className="gesi-card p-3 sm:p-4 col-span-2 md:col-span-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <MetricCard icon={<Zap className="w-5 h-5" />} label="kWp משוער"
+            value={lead.estimated_kwp || '—'} editable={editMode}
+            onSave={(val) => handleQuickUpdate('estimated_kwp', parseFloat(val))} />
+          <MetricCard icon={<TrendingUp className="w-5 h-5" />} label="מחיר לkWp"
+            value={lead.price_per_kwp ? `₪${lead.price_per_kwp.toLocaleString()}` : '—'} editable={editMode}
+            onSave={(val) => handleQuickUpdate('price_per_kwp', parseFloat(val))} />
+          <MetricCard icon={<MapPinned className="w-5 h-5" />} label='גודל גג (מ"ר)'
+            value={lead.roof_size_sqm ? `${lead.roof_size_sqm}` : '—'} editable={editMode}
+            onSave={(val) => handleQuickUpdate('roof_size_sqm', parseFloat(val))} />
+          <div className="gesi-card p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-2 text-gray-400">
-              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+              <FileText className="w-4 h-4" />
               <span className="text-xs">הצעת מחיר</span>
             </div>
             {editMode ? (
-              <Input
-                defaultValue={lead.quote_url || ''}
-                onBlur={(e) => handleQuickUpdate('quote_url', e.target.value)}
-                placeholder="הכנס לינק..."
-                className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-xs sm:text-sm"
-              />
+              <Input defaultValue={lead.quote_url || ''} onBlur={(e) => handleQuickUpdate('quote_url', e.target.value)}
+                placeholder="לינק..." className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-xs" />
             ) : lead.quote_url ? (
-              <a href={lead.quote_url} target="_blank" rel="noopener noreferrer" className="text-[#2dd4a8] hover:underline flex items-center gap-1 text-xs sm:text-sm">
-                צפה בהצעה <ExternalLink className="w-3 h-3" />
+              <a href={lead.quote_url} target="_blank" rel="noreferrer" className="text-[#2dd4a8] hover:underline flex items-center gap-1 text-sm">
+                צפה <ExternalLink className="w-3 h-3" />
               </a>
-            ) : (
-              <span className="text-gray-500 text-xs sm:text-sm">לא הוגדר</span>
-            )}
+            ) : <span className="text-gray-500 text-sm">לא הוגדר</span>}
           </div>
         </div>
 
         {/* Nearby Customers */}
         {nearbyCustomers.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="gesi-card p-4 sm:p-6"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="gesi-card p-4 sm:p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#2dd4a8]" />
-              <h2 className="text-base sm:text-lg font-semibold text-white">לקוחות קרובים גיאוגרפית</h2>
+              <Users className="w-5 h-5 text-[#2dd4a8]" />
+              <h2 className="text-base font-semibold text-white">לקוחות קרובים — {lead.city}</h2>
               <span className="text-xs text-gray-500">({nearbyCustomers.length})</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {nearbyCustomers.slice(0, 6).map(project => (
-                <div key={project.id} className="bg-[#142e38]/50 p-3 rounded-lg border border-[#2dd4a8]/10 hover:border-[#2dd4a8]/30 transition-all">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-sm font-semibold text-white">{project.customer_name}</p>
-                      <p className="text-xs text-gray-400">{project.address}</p>
-                    </div>
-                    <span className="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded">פרויקט הושלם</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400">
-                    {project.kwp && <span className="flex items-center gap-1"><Zap className="w-3 h-3" />{project.kwp} kWp</span>}
-                    {project.type && <span>• {project.type === 'residential' ? 'מגורים' : project.type === 'commercial' ? 'מסחרי' : 'תעשייתי'}</span>}
-                  </div>
+              {nearbyCustomers.slice(0, 4).map(project => (
+                <div key={project.id} className="bg-[#142e38]/50 p-3 rounded-lg border border-[#2dd4a8]/10">
+                  <p className="text-sm font-semibold text-white">{project.customer_name}</p>
+                  <p className="text-xs text-gray-400">{project.address}</p>
+                  {project.kwp && <span className="text-xs text-[#2dd4a8] flex items-center gap-1 mt-1"><Zap className="w-3 h-3" />{project.kwp} kWp</span>}
                 </div>
               ))}
             </div>
@@ -310,47 +309,38 @@ export default function LeadCard() {
         <Tabs defaultValue="overview" className="w-full">
           <div className="border-b border-[rgba(45,212,168,0.1)] bg-[#0d1f26] sticky top-0 z-10">
             <TabsList className="bg-transparent w-full justify-start px-3 sm:px-6 py-0 h-auto overflow-x-auto">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">פרטים</TabsTrigger>
-              <TabsTrigger value="timeline" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">פעילות</TabsTrigger>
-              <TabsTrigger value="chat" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">צ'אט</TabsTrigger>
-              <TabsTrigger value="tasks" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">משימות</TabsTrigger>
-              <TabsTrigger value="calls" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">שיחות</TabsTrigger>
-              <TabsTrigger value="files" className="data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">קבצים</TabsTrigger>
+              <TabsTrigger value="overview" className={TAB}>פרטים</TabsTrigger>
+              <TabsTrigger value="timeline" className={TAB}>פעילות ({activities.length})</TabsTrigger>
+              <TabsTrigger value="chat" className={TAB}>צ'אט</TabsTrigger>
+              <TabsTrigger value="tasks" className={TAB}>משימות</TabsTrigger>
+              <TabsTrigger value="calls" className={TAB}>שיחות</TabsTrigger>
+              <TabsTrigger value="files" className={TAB}>קבצים</TabsTrigger>
             </TabsList>
           </div>
 
-          <TabsContent value="overview" className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 sm:p-6">
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-[#2dd4a8]/10 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-[#2dd4a8]" />
+          {/* Overview */}
+          <TabsContent value="overview" className="p-3 sm:p-6 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 sm:p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-[#2dd4a8]/10 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-[#2dd4a8]" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white">פרטי ליד</h3>
+                  <h3 className="text-base font-semibold text-white">פרטי ליד</h3>
                 </div>
-                <div className="space-y-3">
                 {editMode ? (
                   <div className="space-y-3">
-                    <div>
-                      <Label className="text-xs text-gray-400">שם מלא</Label>
-                      <Input defaultValue={lead.full_name} onBlur={(e) => handleQuickUpdate('full_name', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-gray-400">טלפון</Label>
-                      <Input defaultValue={lead.phone} onBlur={(e) => handleQuickUpdate('phone', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-gray-400">אימייל</Label>
-                      <Input defaultValue={lead.email} onBlur={(e) => handleQuickUpdate('email', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-gray-400">כתובת</Label>
-                      <Input defaultValue={lead.address} onBlur={(e) => handleQuickUpdate('address', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-gray-400">עיר</Label>
-                      <Input defaultValue={lead.city} onBlur={(e) => handleQuickUpdate('city', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
-                    </div>
+                    {[
+                      { key: 'full_name', label: 'שם מלא' }, { key: 'phone', label: 'טלפון' },
+                      { key: 'email', label: 'אימייל' }, { key: 'address', label: 'כתובת' },
+                      { key: 'city', label: 'עיר' }, { key: 'assigned_agent', label: 'סוכן מכירות' },
+                    ].map(f => (
+                      <div key={f.key}>
+                        <Label className="text-xs text-gray-400">{f.label}</Label>
+                        <Input defaultValue={lead[f.key] || ''} onBlur={e => handleQuickUpdate(f.key, e.target.value)}
+                          className="bg-[#142e38] border-[#2dd4a8]/20 text-white" />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <>
@@ -359,29 +349,25 @@ export default function LeadCard() {
                     <InfoRow label="אימייל" value={lead.email} />
                     <InfoRow label="כתובת" value={lead.address} />
                     <InfoRow label="עיר" value={lead.city} />
-                    <InfoRow label="מקור" value={lead.source} />
+                    <InfoRow label="מקור" value={{ website: "אתר", referral: "הפניה", facebook: "פייסבוק", google: "גוגל", phone: "טלפון", walk_in: "פנה ישירות", other: "אחר" }[lead.source] || lead.source} />
                     <InfoRow label="סוכן" value={lead.assigned_agent} />
                   </>
                 )}
-                </div>
               </div>
 
-              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 sm:p-6">
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-blue-400" />
+              <div className="rounded-2xl bg-gradient-to-br from-[#0f2229] to-[#142e38] border border-[rgba(45,212,168,0.1)] p-4 sm:p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-400" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white">מידע נוסף</h3>
+                  <h3 className="text-base font-semibold text-white">מידע נוסף</h3>
                 </div>
-                <div className="space-y-3">
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
                       <Label className="text-xs text-gray-400">סוג נכס</Label>
-                      <Select defaultValue={lead.property_type} onValueChange={(v) => handleQuickUpdate('property_type', v)}>
-                        <SelectTrigger className="bg-[#142e38] border-[#2dd4a8]/20 text-white">
-                          <SelectValue />
-                        </SelectTrigger>
+                      <Select defaultValue={lead.property_type} onValueChange={v => handleQuickUpdate('property_type', v)}>
+                        <SelectTrigger className="bg-[#142e38] border-[#2dd4a8]/20 text-white"><SelectValue /></SelectTrigger>
                         <SelectContent className="bg-[#142e38] border-[#2dd4a8]/20">
                           <SelectItem value="residential">מגורים</SelectItem>
                           <SelectItem value="commercial">מסחרי</SelectItem>
@@ -391,20 +377,23 @@ export default function LeadCard() {
                     </div>
                     <div>
                       <Label className="text-xs text-gray-400">הערות</Label>
-                      <Textarea defaultValue={lead.notes} onBlur={(e) => handleQuickUpdate('notes', e.target.value)} className="bg-[#142e38] border-[#2dd4a8]/20 text-white min-h-[100px]" />
+                      <Textarea defaultValue={lead.notes} onBlur={e => handleQuickUpdate('notes', e.target.value)}
+                        className="bg-[#142e38] border-[#2dd4a8]/20 text-white min-h-[100px]" />
                     </div>
                   </div>
                 ) : (
                   <>
-                    <InfoRow label="סוג נכס" value={lead.property_type === 'residential' ? 'מגורים' : lead.property_type === 'commercial' ? 'מסחרי' : lead.property_type === 'industrial' ? 'תעשייתי' : '—'} />
+                    <InfoRow label="סוג נכס" value={{ residential: 'מגורים', commercial: 'מסחרי', industrial: 'תעשייתי' }[lead.property_type] || '—'} />
                     <InfoRow label="הערות" value={lead.notes} />
+                    <InfoRow label="תאריך יצירה" value={lead.created_date ? new Date(lead.created_date).toLocaleDateString('he-IL') : '—'} />
+                    <InfoRow label="עודכן לאחרונה" value={lead.updated_date ? new Date(lead.updated_date).toLocaleDateString('he-IL') : '—'} />
                   </>
                 )}
-                </div>
               </div>
             </div>
           </TabsContent>
 
+          {/* Activity - full log */}
           <TabsContent value="timeline" className="p-3 sm:p-6">
             <ActivityTimeline activities={activities} />
           </TabsContent>
@@ -426,13 +415,21 @@ export default function LeadCard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Reminder Modal */}
+      <LeadReminderModal open={reminderOpen} onClose={() => setReminderOpen(false)} lead={lead} />
+
+      {/* Stage Drawer */}
+      {stageDrawer && (
+        <LeadStageDrawer stage={stageDrawer} leadId={id} onClose={() => setStageDrawer(null)} />
+      )}
     </div>
   );
 }
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex justify-between items-center py-3 border-b border-[rgba(45,212,168,0.05)] last:border-0 hover:bg-[rgba(45,212,168,0.02)] transition-colors rounded-lg px-2">
+    <div className="flex justify-between items-center py-2.5 border-b border-[rgba(45,212,168,0.05)] last:border-0 hover:bg-[rgba(45,212,168,0.02)] transition-colors rounded-lg px-1">
       <span className="text-sm text-gray-400 font-medium">{label}</span>
       <span className="text-sm text-white font-semibold">{value || '—'}</span>
     </div>
@@ -445,33 +442,18 @@ function MetricCard({ icon, label, value, editable, onSave }) {
 
   return (
     <div className="gesi-card p-3 sm:p-4">
-      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 text-gray-400">
-        <div className="w-4 h-4 sm:w-5 sm:h-5">{icon}</div>
+      <div className="flex items-center gap-1.5 mb-2 text-gray-400">
+        <div className="w-4 h-4">{icon}</div>
         <span className="text-[10px] sm:text-xs">{label}</span>
       </div>
       {editable && isEditing ? (
-        <Input
-          autoFocus
-          type="number"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onBlur={() => {
-            if (editValue) onSave(editValue);
-            setIsEditing(false);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              if (editValue) onSave(editValue);
-              setIsEditing(false);
-            }
-          }}
-          className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-base sm:text-lg font-bold"
-        />
+        <Input autoFocus type="number" value={editValue} onChange={e => setEditValue(e.target.value)}
+          onBlur={() => { if (editValue) onSave(editValue); setIsEditing(false); }}
+          onKeyDown={e => { if (e.key === 'Enter') { if (editValue) onSave(editValue); setIsEditing(false); } }}
+          className="bg-[#142e38] border-[#2dd4a8]/20 text-white text-lg font-bold" />
       ) : (
-        <p 
-          onClick={() => editable && setIsEditing(true)}
-          className={`text-base sm:text-lg font-bold text-white ${editable ? 'cursor-pointer hover:text-[#2dd4a8]' : ''}`}
-        >
+        <p onClick={() => editable && setIsEditing(true)}
+          className={`text-lg font-bold text-white ${editable ? 'cursor-pointer hover:text-[#2dd4a8]' : ''}`}>
           {value}
         </p>
       )}
