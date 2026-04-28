@@ -43,16 +43,25 @@ const formFields = [
   ]},
 ];
 
-const drawerFields = [
-  { label: "טלפון", key: "phone" },
-  { label: "אימייל", key: "email" },
-  { label: "כתובת", key: "address" },
-  { label: "עיר", key: "city" },
-  { label: "ת.ז.", key: "id_number" },
-  { label: "סוכן", key: "assigned_agent" },
-  { label: "סטטוס", render: r => statusLabels[r.status] || r.status },
-  { label: "שפה", render: r => ({ he: 'עברית', en: 'English', ar: 'عربي', ru: 'Русский' }[r.language] || r.language) },
-  { label: "תאריך הצטרפות", render: r => r.created_date ? new Date(r.created_date).toLocaleDateString('he-IL') : '—' },
+const drawerSections = [
+  { title: "פרטי קשר", fields: [
+    { key: "full_name", label: "שם מלא" },
+    { key: "phone", label: "טלפון" },
+    { key: "email", label: "אימייל" },
+    { key: "id_number", label: "ת.ז." },
+  ]},
+  { title: "מיקום ופרטים", fields: [
+    { key: "address", label: "כתובת" },
+    { key: "city", label: "עיר" },
+    { key: "assigned_agent", label: "סוכן" },
+    { key: "status", label: "סטטוס", type: "select", options: [
+      { value: "active", label: "פעיל" }, { value: "inactive", label: "לא פעיל" }, { value: "vip", label: "VIP" }
+    ]},
+    { key: "language", label: "שפה", type: "select", options: [
+      { value: "he", label: "עברית" }, { value: "en", label: "English" }, { value: "ar", label: "عربي" }, { value: "ru", label: "Русский" }
+    ]},
+    { label: "תאריך הצטרפות", readOnly: true, render: r => r.created_date ? new Date(r.created_date).toLocaleDateString('he-IL') : '—' },
+  ]},
 ];
 
 export default function CrmContacts() {
@@ -156,11 +165,16 @@ export default function CrmContacts() {
       <SideDrawer
         record={drawerRecord}
         onClose={() => setDrawerRecord(null)}
+        onSave={async (draft) => {
+          await base44.entities.Contact.update(drawerRecord.id, draft);
+          queryClient.invalidateQueries({ queryKey: ['crm-contacts'] });
+          setDrawerRecord(prev => ({ ...prev, ...draft }));
+        }}
         title={r => r.full_name}
         subtitle={drawerRecord ? statusLabels[drawerRecord.status] : ''}
         subtitleColor={drawerRecord?.status === 'vip' ? '#fbbf24' : drawerRecord?.status === 'active' ? '#2dd4a8' : '#94a3b8'}
         avatar={r => r.full_name?.[0] || 'C'}
-        fields={drawerFields}
+        sections={drawerSections}
         cardPage="ContactCard"
       />
 

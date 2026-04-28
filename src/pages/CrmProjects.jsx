@@ -41,15 +41,27 @@ const formFields = [
   { key: "estimated_completion", label: "צפי סיום", type: "date" },
 ];
 
-const drawerFields = [
-  { label: "לקוח", key: "customer_name" },
-  { label: "kWp", key: "kwp" },
-  { label: "כתובת", key: "address" },
-  { label: "שלב נוכחי", key: "current_step" },
-  { label: "סטטוס", render: r => statusLabels[r.status] || r.status },
-  { label: "התחלה", render: r => r.start_date ? new Date(r.start_date).toLocaleDateString('he-IL') : '—' },
-  { label: "צפי סיום", render: r => r.estimated_completion ? new Date(r.estimated_completion).toLocaleDateString('he-IL') : '—' },
-  { label: "מחיר כולל", render: r => r.total_price ? `₪${r.total_price.toLocaleString()}` : '—' },
+const drawerSections = [
+  { title: "פרטי פרויקט", fields: [
+    { key: "title", label: "שם פרויקט" },
+    { key: "customer_name", label: "לקוח" },
+    { key: "kwp", label: "kWp", type: "number" },
+    { key: "address", label: "כתובת" },
+    { key: "type", label: "סוג", type: "select", options: [
+      { value: "residential", label: "פרטי" }, { value: "commercial", label: "מסחרי" }, { value: "tender", label: "מכרז" }
+    ]},
+    { key: "status", label: "סטטוס", type: "select", options: [
+      { value: "active", label: "פעיל" }, { value: "on_hold", label: "מושהה" },
+      { value: "completed", label: "הושלם" }, { value: "cancelled", label: "בוטל" },
+    ]},
+  ]},
+  { title: "לוח זמנים ועלויות", fields: [
+    { key: "start_date", label: "תאריך התחלה", type: "date" },
+    { key: "estimated_completion", label: "צפי סיום", type: "date" },
+    { key: "current_step", label: "שלב נוכחי", readOnly: true },
+    { key: "price_per_kwp", label: "מחיר לkWp (ללא מע״מ)", type: "number" },
+    { label: "מחיר כולל", readOnly: true, render: r => r.total_price ? `₪${r.total_price.toLocaleString()}` : '—' },
+  ]},
 ];
 
 export default function CrmProjects() {
@@ -171,11 +183,16 @@ export default function CrmProjects() {
       <SideDrawer
         record={drawerRecord}
         onClose={() => setDrawerRecord(null)}
+        onSave={async (draft) => {
+          await base44.entities.Project.update(drawerRecord.id, draft);
+          queryClient.invalidateQueries({ queryKey: ['crm-projects'] });
+          setDrawerRecord(prev => ({ ...prev, ...draft }));
+        }}
         title={r => r.title}
         subtitle={drawerRecord ? statusLabels[drawerRecord.status] : ''}
         subtitleColor={drawerRecord?.status === 'completed' ? '#2dd4a8' : drawerRecord?.status === 'active' ? '#60a5fa' : '#94a3b8'}
         avatar={r => r.title?.[0] || 'P'}
-        fields={drawerFields}
+        sections={drawerSections}
         cardPage="ProjectCard"
       />
 

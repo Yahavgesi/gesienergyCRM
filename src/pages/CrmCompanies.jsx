@@ -40,15 +40,22 @@ const formFields = [
   ]},
 ];
 
-const drawerFields = [
-  { label: "ח.פ.", key: "business_number" },
-  { label: "טלפון", key: "phone" },
-  { label: "אימייל", key: "email" },
-  { label: "כתובת", key: "address" },
-  { label: "עיר", key: "city" },
-  { label: "סוכן", key: "assigned_agent" },
-  { label: "סטטוס", render: r => statusLabels[r.status] || r.status },
-  { label: "תאריך הצטרפות", render: r => r.created_date ? new Date(r.created_date).toLocaleDateString('he-IL') : '—' },
+const drawerSections = [
+  { title: "פרטי חברה", fields: [
+    { key: "name", label: "שם חברה" },
+    { key: "business_number", label: "ח.פ." },
+    { key: "phone", label: "טלפון" },
+    { key: "email", label: "אימייל" },
+  ]},
+  { title: "מיקום ופרטים", fields: [
+    { key: "address", label: "כתובת" },
+    { key: "city", label: "עיר" },
+    { key: "assigned_agent", label: "סוכן" },
+    { key: "status", label: "סטטוס", type: "select", options: [
+      { value: "active", label: "פעיל" }, { value: "inactive", label: "לא פעיל" }
+    ]},
+    { label: "תאריך הצטרפות", readOnly: true, render: r => r.created_date ? new Date(r.created_date).toLocaleDateString('he-IL') : '—' },
+  ]},
 ];
 
 export default function CrmCompanies() {
@@ -150,12 +157,17 @@ export default function CrmCompanies() {
       <SideDrawer
         record={drawerRecord}
         onClose={() => setDrawerRecord(null)}
+        onSave={async (draft) => {
+          await base44.entities.Company.update(drawerRecord.id, draft);
+          queryClient.invalidateQueries({ queryKey: ['crm-companies'] });
+          setDrawerRecord(prev => ({ ...prev, ...draft }));
+        }}
         title={r => r.name}
         subtitle={drawerRecord ? statusLabels[drawerRecord.status] : ''}
         subtitleColor={drawerRecord?.status === 'active' ? '#2dd4a8' : '#94a3b8'}
         avatar={r => r.name?.[0] || 'C'}
         avatarColor="#60a5fa"
-        fields={drawerFields}
+        sections={drawerSections}
         cardPage={drawerRecord ? `CompanyCard/${drawerRecord.id}` : null}
       />
 
