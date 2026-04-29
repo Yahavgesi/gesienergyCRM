@@ -180,26 +180,26 @@ export default function CrmProjects() {
   function renderProjectCell(col, project) {
     switch (col.key) {
       case "status": return <StatusBadge status={statusMap[project.status]} label={statusLabels[project.status]} />;
-      case "type": return <span className="text-gray-300 text-xs">{TYPE_LABELS[project.type] || project.type || "—"}</span>;
-      case "financing_type": return <span className="text-gray-300 text-xs">{FINANCING_LABELS[project.financing_type] || project.financing_type || "—"}</span>;
-      case "kwp": return project.kwp ? <span className="text-[#2dd4a8] font-semibold">{project.kwp}</span> : <span className="text-gray-600">—</span>;
-      case "total_price": return project.total_price ? <span className="text-amber-400 font-semibold">₪{project.total_price.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
-      case "price_per_kwp": return project.price_per_kwp ? <span className="text-gray-300">₪{project.price_per_kwp.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
+      case "type": return <span className="text-slate-500 text-xs">{TYPE_LABELS[project.type] || project.type || "—"}</span>;
+      case "financing_type": return <span className="text-slate-500 text-xs">{FINANCING_LABELS[project.financing_type] || project.financing_type || "—"}</span>;
+      case "kwp": return project.kwp ? <span className="text-[#0ea5a0] font-semibold">{project.kwp}</span> : <span className="text-slate-300">—</span>;
+      case "total_price": return project.total_price ? <span className="text-amber-600 font-semibold">₪{project.total_price.toLocaleString()}</span> : <span className="text-slate-300">—</span>;
+      case "price_per_kwp": return project.price_per_kwp ? <span className="text-slate-600">₪{project.price_per_kwp.toLocaleString()}</span> : <span className="text-slate-300">—</span>;
       case "start_date": case "installation_date": case "grid_connection_date": case "estimated_completion":
-        return project[col.key] ? <span className="text-gray-400 text-xs">{new Date(project[col.key]).toLocaleDateString('he-IL')}</span> : <span className="text-gray-600">—</span>;
-      default: return <span className="text-gray-200 text-sm">{project[col.key] || "—"}</span>;
+        return project[col.key] ? <span className="text-slate-400 text-xs">{new Date(project[col.key]).toLocaleDateString('he-IL')}</span> : <span className="text-slate-300">—</span>;
+      default: return <span className="text-slate-700 text-sm">{project[col.key] || "—"}</span>;
     }
   }
 
   return (
     <div className="p-4 lg:p-6 space-y-4" dir="rtl">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold text-white">פרויקטים</h1>
+        <h1 className="text-2xl font-bold text-slate-800">פרויקטים</h1>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="חיפוש..."
-              className="pr-9 bg-[#142e38] border-[rgba(45,212,168,0.1)] text-white placeholder-gray-600 w-52" />
+              className="pr-9 bg-white border-slate-200 text-slate-700 placeholder-slate-400 w-52" />
           </div>
           <Button onClick={() => { setFormData({}); setShowForm(true); }} style={{ background: 'linear-gradient(135deg, #2dd4a8, #1fa882)' }}>
             <Plus className="w-4 h-4 ml-2" /> פרויקט חדש
@@ -207,18 +207,18 @@ export default function CrmProjects() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="flex items-center gap-2 text-xs text-slate-400">
         <span>{filtered.length} פרויקטים</span>
       </div>
 
       {isLoading ? <SkeletonCard lines={5} /> : (
-        <div className="rounded-2xl overflow-hidden border border-[rgba(45,212,168,0.08)]" style={{ background: '#0d1f26' }}>
+        <div className="rounded-xl overflow-hidden border" style={{ background: '#ffffff', borderColor: '#d1e3ec' }}>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[rgba(45,212,168,0.08)]" style={{ background: '#0f2229' }}>
+                <tr className="border-b" style={{ background: '#f1f7fb', borderColor: '#d1e3ec' }}>
                   {activeColumns.map(col => (
-                    <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
                   ))}
@@ -227,7 +227,7 @@ export default function CrmProjects() {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-gray-600">אין פרויקטים</td></tr>
+                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-slate-400">אין פרויקטים</td></tr>
                 )}
                 {filtered.map(project => (
                   editingId === project.id ? (
@@ -237,7 +237,7 @@ export default function CrmProjects() {
                   ) : (
                     <tr key={project.id}
                       onClick={() => navigate(createPageUrl(`ProjectCard?id=${project.id}`))}
-                      className="group border-b border-[rgba(45,212,168,0.05)] hover:bg-[rgba(45,212,168,0.03)] transition-colors cursor-pointer">
+                      className="group border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
                       {activeColumns.map(col => (
                         <td key={col.key} className="px-4 py-3 whitespace-nowrap">
                           {renderProjectCell(col, project)}

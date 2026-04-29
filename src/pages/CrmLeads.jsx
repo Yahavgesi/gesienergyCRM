@@ -135,7 +135,7 @@ export default function CrmLeads() {
     <div className="p-4 lg:p-6 space-y-4" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold text-white">לידים</h1>
+        <h1 className="text-2xl font-bold text-slate-800">לידים</h1>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -143,7 +143,7 @@ export default function CrmLeads() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="חיפוש..."
-              className="pr-9 bg-[#142e38] border-[rgba(45,212,168,0.1)] text-white placeholder-gray-600 w-52"
+              className="pr-9 bg-white border-slate-200 text-slate-700 placeholder-slate-400 w-52"
             />
           </div>
           <LeadColumnManager visibleColumns={visibleColumns} onChange={setVisibleColumns} />
@@ -155,7 +155,7 @@ export default function CrmLeads() {
       </div>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-4 text-xs text-gray-500">
+      <div className="flex items-center gap-4 text-xs text-slate-400">
         <span>{filtered.length} לידים</span>
         <span>•</span>
         <span>{leads.filter(l => l.sales_stage === 'won').length} נסגרו</span>
@@ -167,15 +167,13 @@ export default function CrmLeads() {
       {isLoading ? (
         <SkeletonCard lines={5} />
       ) : (
-        <div className="rounded-2xl overflow-hidden border border-[rgba(45,212,168,0.08)]"
-          style={{ background: '#0d1f26' }}>
+        <div className="rounded-xl overflow-hidden border" style={{ background: '#ffffff', borderColor: '#d1e3ec' }}>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[rgba(45,212,168,0.08)]"
-                  style={{ background: '#0f2229' }}>
+                <tr className="border-b" style={{ background: '#f1f7fb', borderColor: '#d1e3ec' }}>
                   {activeColumns.map(col => (
-                    <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
                   ))}
@@ -184,7 +182,7 @@ export default function CrmLeads() {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-gray-600">אין לידים עדיין</td></tr>
+                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-slate-400">אין לידים עדיין</td></tr>
                 )}
                 {filtered.map(lead => (
                   editingId === lead.id ? (
@@ -199,7 +197,7 @@ export default function CrmLeads() {
                     <tr
                       key={lead.id}
                       onClick={() => navigate(createPageUrl(`LeadCard?id=${lead.id}`))}
-                      className="group border-b border-[rgba(45,212,168,0.05)] hover:bg-[rgba(45,212,168,0.03)] transition-colors cursor-pointer"
+                      className="group border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                     >
                       {activeColumns.map(col => (
                         <td key={col.key} className="px-4 py-3 text-sm whitespace-nowrap">

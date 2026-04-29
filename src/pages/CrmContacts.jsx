@@ -162,24 +162,24 @@ export default function CrmContacts() {
   function renderContactCell(col, contact) {
     switch (col.key) {
       case "status": return <StatusBadge status={statusMap[contact.status]} label={statusLabels[contact.status]} />;
-      case "source": return <span className="text-gray-300 text-xs">{SOURCE_LABELS[contact.source] || contact.source || "—"}</span>;
-      case "property_type": return <span className="text-gray-300 text-xs">{PROP_LABELS[contact.property_type] || contact.property_type || "—"}</span>;
-      case "created_date": return <span className="text-gray-400 text-xs">{contact.created_date ? new Date(contact.created_date).toLocaleDateString('he-IL') : "—"}</span>;
-      case "monthly_electricity_bill": return contact.monthly_electricity_bill ? <span className="text-gray-300">₪{contact.monthly_electricity_bill.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
-      case "roof_size_sqm": return contact.roof_size_sqm ? <span className="text-gray-300">{contact.roof_size_sqm}</span> : <span className="text-gray-600">—</span>;
-      default: return <span className="text-gray-200 text-sm">{contact[col.key] || "—"}</span>;
+      case "source": return <span className="text-slate-500 text-xs">{SOURCE_LABELS[contact.source] || contact.source || "—"}</span>;
+      case "property_type": return <span className="text-slate-500 text-xs">{PROP_LABELS[contact.property_type] || contact.property_type || "—"}</span>;
+      case "created_date": return <span className="text-slate-400 text-xs">{contact.created_date ? new Date(contact.created_date).toLocaleDateString('he-IL') : "—"}</span>;
+      case "monthly_electricity_bill": return contact.monthly_electricity_bill ? <span className="text-slate-600">₪{contact.monthly_electricity_bill.toLocaleString()}</span> : <span className="text-slate-300">—</span>;
+      case "roof_size_sqm": return contact.roof_size_sqm ? <span className="text-slate-600">{contact.roof_size_sqm}</span> : <span className="text-slate-300">—</span>;
+      default: return <span className="text-slate-700 text-sm">{contact[col.key] || "—"}</span>;
     }
   }
 
   return (
     <div className="p-4 lg:p-6 space-y-4" dir="rtl">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold text-white">אנשי קשר</h1>
+        <h1 className="text-2xl font-bold text-slate-800">אנשי קשר</h1>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="חיפוש..."
-              className="pr-9 bg-[#142e38] border-[rgba(45,212,168,0.1)] text-white placeholder-gray-600 w-60" />
+              className="pr-9 bg-white border-slate-200 text-slate-700 placeholder-slate-400 w-60" />
           </div>
           {/* Column selector */}
           <select multiple value={visibleCols} onChange={e => { const vals = [...e.target.selectedOptions].map(o => o.value); if (vals.length > 0) { setVisibleCols(vals); localStorage.setItem("contacts_columns", JSON.stringify(vals)); }}}
@@ -190,18 +190,18 @@ export default function CrmContacts() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="flex items-center gap-2 text-xs text-slate-400">
         <span>{filtered.length} אנשי קשר</span>
       </div>
 
       {isLoading ? <SkeletonCard lines={5} /> : (
-        <div className="rounded-2xl overflow-hidden border border-[rgba(45,212,168,0.08)]" style={{ background: '#0d1f26' }}>
+        <div className="rounded-xl overflow-hidden border" style={{ background: '#ffffff', borderColor: '#d1e3ec' }}>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[rgba(45,212,168,0.08)]" style={{ background: '#0f2229' }}>
+                <tr className="border-b" style={{ background: '#f1f7fb', borderColor: '#d1e3ec' }}>
                   {activeColumns.map(col => (
-                    <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
                   ))}
@@ -210,7 +210,7 @@ export default function CrmContacts() {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-gray-600">אין אנשי קשר</td></tr>
+                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-slate-400">אין אנשי קשר</td></tr>
                 )}
                 {filtered.map(contact => (
                   editingId === contact.id ? (
@@ -220,7 +220,7 @@ export default function CrmContacts() {
                   ) : (
                     <tr key={contact.id}
                       onClick={() => navigate(createPageUrl(`ContactCard?id=${contact.id}`))}
-                      className="group border-b border-[rgba(45,212,168,0.05)] hover:bg-[rgba(45,212,168,0.03)] transition-colors cursor-pointer">
+                      className="group border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
                       {activeColumns.map(col => (
                         <td key={col.key} className="px-4 py-3 whitespace-nowrap">
                           {renderContactCell(col, contact)}

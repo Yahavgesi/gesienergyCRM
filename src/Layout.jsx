@@ -86,8 +86,8 @@ export default function Layout({ children, currentPageName }) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#0a1a1f' }}>
-        <div className="w-12 h-12 border-4 border-[#142e38] border-t-[#2dd4a8] rounded-full animate-spin" />
+      <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#dce8ef' }}>
+        <div className="w-12 h-12 border-4 border-[#b0c8d4] border-t-[#0ea5a0] rounded-full animate-spin" />
       </div>
     );
   }
@@ -95,7 +95,7 @@ export default function Layout({ children, currentPageName }) {
   // Landing / Portal selector
   if (isLanding) {
     return (
-      <div className="min-h-screen" style={{ background: '#0a1a1f' }}>
+      <div className="min-h-screen" style={{ background: '#dce8ef' }}>
         <Toaster position="top-center" richColors />
         {children}
       </div>
@@ -105,31 +105,28 @@ export default function Layout({ children, currentPageName }) {
   // Customer Mobile Layout
   if (isCustomerPage) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: '#0a1a1f' }}>
+      <div className="min-h-screen flex flex-col" style={{ background: '#dce8ef' }}>
         <Toaster position="top-center" richColors />
-        {/* Customer Header */}
         <header className="sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b"
-          style={{ background: 'rgba(10,26,31,0.95)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
+          style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(12px)', borderColor: 'rgba(14,165,160,0.12)' }}>
           <div className="flex items-center gap-3">
             <Link to={createPageUrl("CustomerHome")}>
               <GesiLogo size="sm" />
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            <Link to={createPageUrl("CustomerNotifications")} className="relative p-2 rounded-xl hover:bg-[#142e38] transition-colors">
-              <Bell className="w-5 h-5 text-gray-400" />
+            <Link to={createPageUrl("CustomerNotifications")} className="relative p-2 rounded-xl hover:bg-slate-100 transition-colors">
+              <Bell className="w-5 h-5 text-slate-400" />
             </Link>
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto pb-20">
           {children}
         </main>
 
-        {/* Bottom Nav */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 border-t"
-          style={{ background: 'rgba(10,26,31,0.98)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
+          style={{ background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(12px)', borderColor: 'rgba(14,165,160,0.12)' }}>
           <div className="flex items-center justify-around py-2 px-2 max-w-lg mx-auto">
             {customerNav.map(item => {
               const isActive = currentPageName === item.page;
@@ -138,12 +135,12 @@ export default function Layout({ children, currentPageName }) {
                   key={item.page}
                   to={createPageUrl(item.page)}
                   className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
-                    isActive ? 'text-[#2dd4a8]' : 'text-gray-500 hover:text-gray-300'
+                    isActive ? 'text-[#0ea5a0]' : 'text-slate-400 hover:text-slate-600'
                   }`}
                 >
-                  <item.icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_6px_rgba(45,212,168,0.5)]' : ''}`} />
+                  <item.icon className="w-5 h-5" />
                   <span className="text-[10px] font-medium">{item.name}</span>
-                  {isActive && <div className="w-1 h-1 rounded-full bg-[#2dd4a8] mt-0.5" />}
+                  {isActive && <div className="w-1 h-1 rounded-full bg-[#0ea5a0] mt-0.5" />}
                 </Link>
               );
             })}
@@ -155,19 +152,19 @@ export default function Layout({ children, currentPageName }) {
 
   // CRM Desktop Layout
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: '#0a1a1f' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: '#dce8ef' }}>
       <Toaster position="top-center" richColors />
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between border-b"
-        style={{ background: 'rgba(10,26,31,0.95)', backdropFilter: 'blur(12px)', borderColor: 'rgba(45,212,168,0.08)' }}>
+        style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(12px)', borderColor: 'rgba(14,165,160,0.12)' }}>
         <div className="flex items-center gap-3">
           <GesiLogo size="sm" />
         </div>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl hover:bg-[#142e38] transition-colors z-50"
+          className="p-2 rounded-xl hover:bg-slate-100 transition-colors z-50"
         >
-          {mobileMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
+          {mobileMenuOpen ? <X className="w-6 h-6 text-slate-700" /> : <Menu className="w-6 h-6 text-slate-700" />}
         </button>
       </header>
 
@@ -175,43 +172,43 @@ export default function Layout({ children, currentPageName }) {
       <aside className={`
         fixed lg:relative inset-y-0 right-0 lg:left-0 z-[60] h-full flex flex-col border-l lg:border-r transition-transform duration-300
         ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        ${sidebarCollapsed ? 'lg:w-20' : 'w-[80vw] max-w-[300px] lg:w-64'}
-      `} style={{ background: '#0d1f26', borderColor: 'rgba(45,212,168,0.08)' }}>
+        ${sidebarCollapsed ? 'lg:w-20' : 'w-[80vw] max-w-[280px] lg:w-64'}
+      `} style={{ background: '#ffffff', borderColor: '#d1e3ec', boxShadow: '2px 0 12px rgba(15,23,42,0.06)' }}>
         
-        {/* Logo */}
-        <div className="lg:hidden p-4 flex items-center justify-between border-b" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
+        {/* Logo - mobile */}
+        <div className="lg:hidden p-4 flex items-center justify-between border-b" style={{ borderColor: '#e2edf3' }}>
           <GesiLogo size="sm" />
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="p-2 rounded-lg hover:bg-[#142e38] transition-colors"
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            <X className="w-5 h-5 text-white" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
-        <div className="hidden lg:flex p-4 items-center justify-between border-b" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
+        {/* Logo - desktop */}
+        <div className="hidden lg:flex p-4 items-center justify-between border-b" style={{ borderColor: '#e2edf3' }}>
           {!sidebarCollapsed && <GesiLogo size="sm" />}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded-lg hover:bg-[#142e38] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            {sidebarCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+            {sidebarCollapsed
+              ? <ChevronLeft className="w-4 h-4 text-slate-400" />
+              : <ChevronRight className="w-4 h-4 text-slate-400" />}
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
           {crmNav.map(section => (
             <div key={section.section}>
-              <p className="lg:hidden text-[10px] uppercase font-semibold text-gray-500 tracking-wider mb-2 px-3">
-                {section.section}
-              </p>
               {!sidebarCollapsed && (
-                <p className="hidden lg:block text-[10px] uppercase font-semibold text-gray-500 tracking-wider mb-2 px-3">
+                <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider mb-1.5 px-3">
                   {section.section}
                 </p>
               )}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {section.items.map(item => {
                   const isActive = currentPageName === item.page;
                   return (
@@ -219,15 +216,15 @@ export default function Layout({ children, currentPageName }) {
                       key={item.page}
                       to={createPageUrl(item.page)}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
-                        isActive 
-                          ? 'bg-[#2dd4a8]/10 text-[#2dd4a8]' 
-                          : 'text-gray-400 hover:text-white hover:bg-[#142e38]'
+                      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group ${
+                        isActive
+                          ? 'bg-[#0ea5a0]/10 text-[#0ea5a0]'
+                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
                       }`}
                     >
-                      {isActive && <div className="absolute left-0 w-[3px] h-6 rounded-r-full bg-[#2dd4a8]" />}
-                      <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#2dd4a8]' : ''}`} />
-                      <span className="text-sm font-medium lg:inline">{item.name}</span>
+                      {isActive && <div className="absolute left-0 w-[3px] h-5 rounded-r-full bg-[#0ea5a0]" />}
+                      <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#0ea5a0]' : ''}`} />
+                      {!sidebarCollapsed && <span className="text-sm font-medium lg:inline">{item.name}</span>}
                     </Link>
                   );
                 })}
@@ -237,42 +234,31 @@ export default function Layout({ children, currentPageName }) {
         </nav>
 
         {/* User / Logout */}
-        <div className="p-3 border-t" style={{ borderColor: 'rgba(45,212,168,0.08)' }}>
-          {user && (
-            <div className="flex items-center gap-3 px-3 py-2 mb-2 lg:hidden">
-              <div className="w-8 h-8 rounded-full bg-[#2dd4a8]/20 flex items-center justify-center text-[#2dd4a8] text-sm font-bold">
-                {user.full_name?.[0] || user.email?.[0] || "U"}
-              </div>
-              <div className="truncate">
-                <p className="text-xs font-medium text-white truncate">{user.full_name || user.email}</p>
-                <p className="text-[10px] text-gray-500">{user.role || "user"}</p>
-              </div>
-            </div>
-          )}
+        <div className="p-3 border-t" style={{ borderColor: '#e2edf3' }}>
           {user && !sidebarCollapsed && (
-            <div className="hidden lg:flex items-center gap-3 px-3 py-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-[#2dd4a8]/20 flex items-center justify-center text-[#2dd4a8] text-sm font-bold">
+            <div className="flex items-center gap-3 px-3 py-2 mb-1">
+              <div className="w-8 h-8 rounded-full bg-[#0ea5a0]/15 flex items-center justify-center text-[#0ea5a0] text-sm font-bold flex-shrink-0">
                 {user.full_name?.[0] || user.email?.[0] || "U"}
               </div>
               <div className="truncate">
-                <p className="text-xs font-medium text-white truncate">{user.full_name || user.email}</p>
-                <p className="text-[10px] text-gray-500">{user.role || "user"}</p>
+                <p className="text-xs font-semibold text-slate-700 truncate">{user.full_name || user.email}</p>
+                <p className="text-[10px] text-slate-400">{user.role || "user"}</p>
               </div>
             </div>
           )}
           <button
             onClick={() => base44.auth.logout()}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all w-full"
           >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            <span className="text-sm lg:inline">התנתק</span>
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            {!sidebarCollapsed && <span className="text-sm">התנתק</span>}
           </button>
         </div>
       </aside>
 
       {/* Mobile overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
       )}
 
       {/* Main Content */}

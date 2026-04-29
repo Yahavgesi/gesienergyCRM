@@ -5,17 +5,17 @@
 @tailwind utilities;
 
 :root {
-  --gesi-bg-dark: #0a1a1f;
-  --gesi-bg-card: #0f2229;
-  --gesi-bg-elevated: #142e38;
-  --gesi-accent: #2dd4a8;
-  --gesi-accent-dark: #1fa882;
-  --gesi-accent-glow: rgba(45, 212, 168, 0.15);
-  --gesi-text-primary: #ffffff;
-  --gesi-text-secondary: #94a3b8;
-  --gesi-text-muted: #64748b;
-  --gesi-border: rgba(45, 212, 168, 0.12);
-  --gesi-border-subtle: rgba(255, 255, 255, 0.06);
+  --gesi-bg-dark: #dce8ef;
+  --gesi-bg-card: #ffffff;
+  --gesi-bg-elevated: #eaf1f5;
+  --gesi-accent: #0ea5a0;
+  --gesi-accent-dark: #0c8c88;
+  --gesi-accent-glow: rgba(14, 165, 160, 0.12);
+  --gesi-text-primary: #0f172a;
+  --gesi-text-secondary: #475569;
+  --gesi-text-muted: #94a3b8;
+  --gesi-border: rgba(14, 165, 160, 0.18);
+  --gesi-border-subtle: rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -37,7 +37,7 @@ body {
   background: var(--gesi-bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--gesi-bg-elevated);
+  background: #b0c8d4;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -46,32 +46,32 @@ body {
 
 /* Glow button */
 .gesi-btn-primary {
-  background: linear-gradient(135deg, #2dd4a8 0%, #1fa882 100%);
+  background: linear-gradient(135deg, #0ea5a0 0%, #0c8c88 100%);
   color: white;
   border: none;
   border-radius: 12px;
   padding: 12px 28px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(45, 212, 168, 0.2);
+  box-shadow: 0 2px 12px rgba(14, 165, 160, 0.25);
 }
 .gesi-btn-primary:hover {
-  box-shadow: 0 0 30px rgba(45, 212, 168, 0.4);
+  box-shadow: 0 4px 20px rgba(14, 165, 160, 0.4);
   transform: translateY(-1px);
 }
 
 /* Glass card */
 .gesi-card {
-  background: rgba(15, 34, 41, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--gesi-border);
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #d1e3ec;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 }
 
 /* Status animations */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(45, 212, 168, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(45, 212, 168, 0.6); }
+  0%, 100% { box-shadow: 0 0 5px rgba(14, 165, 160, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(14, 165, 160, 0.45); }
 }
 
 @keyframes shimmer {
@@ -84,7 +84,7 @@ body {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, var(--gesi-bg-card) 25%, var(--gesi-bg-elevated) 50%, var(--gesi-bg-card) 75%);
+  background: linear-gradient(90deg, #eaf1f5 25%, #dce8ef 50%, #eaf1f5 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -92,5 +92,5 @@ body {
 /* Timeline connector line */
 .timeline-line {
   width: 2px;
-  background: linear-gradient(to bottom, var(--gesi-accent), var(--gesi-bg-elevated));
+  background: linear-gradient(to bottom, var(--gesi-accent), #d1e3ec);
 }
