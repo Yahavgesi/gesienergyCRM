@@ -4,19 +4,32 @@ import { Settings2, X, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const ALL_COLUMNS = [
-  { key: "full_name", label: "שם", fixed: true },
+  { key: "full_name", label: "שם מלא", fixed: true },
   { key: "phone", label: "טלפון" },
+  { key: "phone2", label: "טלפון 2" },
   { key: "email", label: "אימייל" },
+  { key: "id_number", label: "ת.ז." },
   { key: "city", label: "עיר" },
+  { key: "address", label: "כתובת" },
+  { key: "region", label: "אזור" },
+  { key: "company_name", label: "חברה" },
   { key: "source", label: "מקור" },
   { key: "sales_stage", label: "שלב מכירה" },
-  { key: "status", label: "סטטוס" },
-  { key: "estimated_kwp", label: "kWp" },
+  { key: "property_type", label: "סוג נכס" },
+  { key: "roof_type", label: "סוג גג" },
+  { key: "estimated_kwp", label: "kWp משוער" },
   { key: "price_per_kwp", label: "₪/kWp" },
   { key: "roof_size_sqm", label: 'גג (מ"ר)' },
-  { key: "property_type", label: "סוג נכס" },
+  { key: "monthly_electricity_bill", label: "חשבון חשמל (₪)" },
+  { key: "electricity_provider", label: "ספק חשמל" },
+  { key: "priority", label: "עדיפות" },
   { key: "assigned_agent", label: "סוכן" },
+  { key: "assigned_team", label: "צוות" },
+  { key: "next_follow_up", label: "מעקב הבא" },
+  { key: "last_contact_date", label: "קשר אחרון" },
+  { key: "status", label: "סטטוס" },
   { key: "created_date", label: "תאריך יצירה" },
+  { key: "lost_reason", label: "סיבת אובדן" },
 ];
 
 export default function LeadColumnManager({ visibleColumns, onChange }) {

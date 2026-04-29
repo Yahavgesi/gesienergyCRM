@@ -17,28 +17,51 @@ import LeadReminderModal from "../components/leads/LeadReminderModal";
 
 const STATUS_MAP = { new: "pending", contacted: "in_progress", qualified: "completed", unqualified: "blocked", converted: "completed" };
 const STATUS_LABELS = { new: "חדש", contacted: "נוצר קשר", qualified: "מתאים", unqualified: "לא מתאים", converted: "הומר" };
-const SOURCE_LABELS = { website: "אתר", referral: "הפניה", facebook: "פייסבוק", google: "גוגל", phone: "טלפון", walk_in: "פנה ישירות", other: "אחר" };
+const SOURCE_LABELS = {
+  website: "אתר", referral: "הפניה", facebook: "פייסבוק", google: "גוגל",
+  phone: "טלפון", walk_in: "פנה ישירות", whatsapp: "וואטסאפ", tiktok: "טיקטוק",
+  instagram: "אינסטגרם", yad2: "יד2", portal: "פורטל", other: "אחר"
+};
 const STAGE_LABELS = {
   new_lead: "ליד חדש", initial_contact: "יצירת קשר", site_survey: "סיור באתר",
   quote_sent: "הצעת מחיר", negotiation: "משא ומתן", closing: "סגירה", won: "נסגר", lost: "אבוד",
 };
-const PROP_LABELS = { residential: "פרטי", commercial: "מסחרי", industrial: "תעשייתי" };
+const PROP_LABELS = { residential: "פרטי", commercial: "מסחרי", industrial: "תעשייתי", agricultural: "חקלאי", parking: "חניון" };
+const PRIORITY_LABELS = { low: "נמוכה", medium: "בינונית", high: "גבוהה" };
+const PRIORITY_COLORS = { low: "#94a3b8", medium: "#fbbf24", high: "#ef4444" };
 
-const DEFAULT_COLUMNS = ["full_name", "phone", "city", "source", "sales_stage", "estimated_kwp", "status", "created_date"];
+const DEFAULT_COLUMNS = ["full_name", "phone", "city", "source", "sales_stage", "estimated_kwp", "price_per_kwp", "property_type", "assigned_agent", "next_follow_up", "status", "created_date"];
+
+const SOURCE_OPTIONS = Object.entries(SOURCE_LABELS).map(([v, l]) => ({ value: v, label: l }));
+const STAGE_OPTIONS = Object.entries(STAGE_LABELS).map(([v, l]) => ({ value: v, label: l }));
+const PROP_OPTIONS = Object.entries(PROP_LABELS).map(([v, l]) => ({ value: v, label: l }));
 
 const formFields = [
-  { key: "full_name", label: "שם מלא", placeholder: "שם הליד" },
-  { key: "phone", label: "טלפון", placeholder: "050-0000000" },
+  { key: "full_name", label: "שם מלא", placeholder: "שם מלא" },
+  { key: "phone", label: "טלפון נייד", placeholder: "050-0000000" },
+  { key: "phone2", label: "טלפון נוסף", placeholder: "050-0000000" },
   { key: "email", label: "אימייל", type: "email", placeholder: "email@example.com" },
-  { key: "source", label: "מקור", type: "select", options: Object.entries(SOURCE_LABELS).map(([v, l]) => ({ value: v, label: l })) },
+  { key: "id_number", label: "ת.ז.", placeholder: "תעודת זהות" },
+  { key: "source", label: "מקור ליד", type: "select", options: SOURCE_OPTIONS },
   { key: "address", label: "כתובת", placeholder: "כתובת הנכס" },
   { key: "city", label: "עיר", placeholder: "עיר" },
-  { key: "property_type", label: "סוג נכס", type: "select", options: [
-    { value: "residential", label: "פרטי" }, { value: "commercial", label: "מסחרי" }, { value: "industrial", label: "תעשייתי" }
+  { key: "region", label: "אזור", placeholder: "צפון / מרכז / דרום..." },
+  { key: "property_type", label: "סוג נכס", type: "select", options: PROP_OPTIONS },
+  { key: "roof_type", label: "סוג גג", type: "select", options: [
+    { value: "flat", label: "שטוח" }, { value: "sloped", label: "משופע" },
+    { value: "tile", label: "רעפים" }, { value: "metal", label: "מתכת" }, { value: "other", label: "אחר" }
   ]},
-  { key: "roof_size_sqm", label: 'גודל גג (מ"ר)', type: "number", placeholder: "0" },
+  { key: "roof_size_sqm", label: 'שטח גג (מ"ר)', type: "number", placeholder: "0" },
   { key: "estimated_kwp", label: "kWp משוער", type: "number", placeholder: "0" },
-  { key: "assigned_agent", label: "סוכן מכירות", placeholder: "email@example.com" },
+  { key: "price_per_kwp", label: "מחיר ל-kWp (₪)", type: "number", placeholder: "0" },
+  { key: "monthly_electricity_bill", label: "חשבון חשמל חודשי (₪)", type: "number", placeholder: "0" },
+  { key: "electricity_provider", label: "ספק חשמל", placeholder: "חברת חשמל / ספק אחר" },
+  { key: "sales_stage", label: "שלב במכירה", type: "select", options: STAGE_OPTIONS },
+  { key: "priority", label: "עדיפות", type: "select", options: [
+    { value: "low", label: "נמוכה" }, { value: "medium", label: "בינונית" }, { value: "high", label: "גבוהה" }
+  ]},
+  { key: "assigned_agent", label: "סוכן מכירות", placeholder: "שם הסוכן" },
+  { key: "next_follow_up", label: "תאריך מעקב הבא", type: "date" },
   { key: "notes", label: "הערות", type: "textarea", placeholder: "הערות פנימיות" },
 ];
 
@@ -46,11 +69,21 @@ function renderCell(col, row) {
   switch (col.key) {
     case "status": return <StatusBadge status={STATUS_MAP[row.status]} label={STATUS_LABELS[row.status]} />;
     case "source": return <span className="text-gray-300">{SOURCE_LABELS[row.source] || row.source || "—"}</span>;
-    case "sales_stage": return <span className="text-gray-300 text-xs">{STAGE_LABELS[row.sales_stage] || row.sales_stage || "—"}</span>;
+    case "sales_stage": {
+      const stageColors = { new_lead:"#94a3b8", initial_contact:"#60a5fa", site_survey:"#a78bfa", quote_sent:"#fbbf24", negotiation:"#fb923c", closing:"#22c55e", won:"#2dd4a8", lost:"#ef4444" };
+      const c = stageColors[row.sales_stage] || "#94a3b8";
+      return <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${c}20`, color: c }}>{STAGE_LABELS[row.sales_stage] || "—"}</span>;
+    }
     case "property_type": return <span className="text-gray-300">{PROP_LABELS[row.property_type] || row.property_type || "—"}</span>;
+    case "priority": {
+      const c = PRIORITY_COLORS[row.priority] || "#94a3b8";
+      return row.priority ? <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${c}20`, color: c }}>{PRIORITY_LABELS[row.priority]}</span> : <span className="text-gray-600">—</span>;
+    }
     case "created_date": return <span className="text-gray-400 text-xs">{row.created_date ? new Date(row.created_date).toLocaleDateString('he-IL') : "—"}</span>;
+    case "next_follow_up": return row.next_follow_up ? <span className={`text-xs ${new Date(row.next_follow_up) < new Date() ? 'text-red-400' : 'text-amber-400'}`}>{new Date(row.next_follow_up).toLocaleDateString('he-IL')}</span> : <span className="text-gray-600">—</span>;
     case "estimated_kwp": return row.estimated_kwp ? <span className="text-[#2dd4a8] font-semibold">{row.estimated_kwp}</span> : <span className="text-gray-600">—</span>;
     case "price_per_kwp": return row.price_per_kwp ? <span className="text-amber-400 font-semibold">₪{row.price_per_kwp.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
+    case "monthly_electricity_bill": return row.monthly_electricity_bill ? <span className="text-gray-300">₪{row.monthly_electricity_bill.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
     default: return <span className="text-gray-200">{row[col.key] || "—"}</span>;
   }
 }

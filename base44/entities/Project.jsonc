@@ -1,0 +1,214 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8"
+    },
+    "project_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8"
+    },
+    "deal_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e2\u05e1\u05e7\u05d4"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05dc\u05e7\u05d5\u05d7"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05dc\u05e7\u05d5\u05d7"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "\u05d0\u05d9\u05de\u05d9\u05d9\u05dc \u05dc\u05e7\u05d5\u05d7"
+    },
+    "customer_phone": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05e7\u05d5\u05d7"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "residential",
+        "commercial",
+        "industrial",
+        "agricultural",
+        "tender"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8"
+    },
+    "address": {
+      "type": "string",
+      "description": "\u05db\u05ea\u05d5\u05d1\u05ea \u05d4\u05ea\u05e7\u05e0\u05d4"
+    },
+    "city": {
+      "type": "string",
+      "description": "\u05e2\u05d9\u05e8"
+    },
+    "region": {
+      "type": "string",
+      "description": "\u05d0\u05d6\u05d5\u05e8"
+    },
+    "kwp": {
+      "type": "number",
+      "description": "\u05d2\u05d5\u05d3\u05dc \u05de\u05e2\u05e8\u05db\u05ea (kWp)"
+    },
+    "num_panels": {
+      "type": "number",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05e4\u05d0\u05e0\u05dc\u05d9\u05dd"
+    },
+    "panel_brand": {
+      "type": "string",
+      "description": "\u05d9\u05e6\u05e8\u05df \u05e4\u05d0\u05e0\u05dc\u05d9\u05dd"
+    },
+    "panel_model": {
+      "type": "string",
+      "description": "\u05d3\u05d2\u05dd \u05e4\u05d0\u05e0\u05dc\u05d9\u05dd"
+    },
+    "inverter_brand": {
+      "type": "string",
+      "description": "\u05d9\u05e6\u05e8\u05df \u05de\u05d4\u05e4\u05da"
+    },
+    "inverter_model": {
+      "type": "string",
+      "description": "\u05d3\u05d2\u05dd \u05de\u05d4\u05e4\u05da"
+    },
+    "has_battery": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05db\u05d5\u05dc\u05dc \u05e1\u05d5\u05dc\u05dc\u05d4"
+    },
+    "battery_brand": {
+      "type": "string",
+      "description": "\u05d9\u05e6\u05e8\u05df \u05e1\u05d5\u05dc\u05dc\u05d4"
+    },
+    "has_ev_charger": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05db\u05d5\u05dc\u05dc \u05e2\u05de\u05d3\u05ea \u05d8\u05e2\u05d9\u05e0\u05d4"
+    },
+    "roof_type": {
+      "type": "string",
+      "enum": [
+        "flat",
+        "sloped",
+        "tile",
+        "metal",
+        "other"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05d2\u05d2"
+    },
+    "price_per_kwp": {
+      "type": "number",
+      "description": "\u05de\u05d7\u05d9\u05e8 \u05dc-kWp (\u05dc\u05dc\u05d0 \u05de\u05e2\"\u05de)"
+    },
+    "price_per_kwp_with_vat": {
+      "type": "number",
+      "description": "\u05de\u05d7\u05d9\u05e8 \u05dc-kWp (\u05db\u05d5\u05dc\u05dc \u05de\u05e2\"\u05de)"
+    },
+    "total_price": {
+      "type": "number",
+      "description": "\u05de\u05d7\u05d9\u05e8 \u05db\u05d5\u05dc\u05dc (\u05db\u05d5\u05dc\u05dc \u05de\u05e2\"\u05de)"
+    },
+    "total_price_no_vat": {
+      "type": "number",
+      "description": "\u05de\u05d7\u05d9\u05e8 \u05db\u05d5\u05dc\u05dc (\u05dc\u05dc\u05d0 \u05de\u05e2\"\u05de)"
+    },
+    "deposit_amount": {
+      "type": "number",
+      "description": "\u05e1\u05db\u05d5\u05dd \u05de\u05e7\u05d3\u05de\u05d4"
+    },
+    "financing_type": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "loan",
+        "leasing",
+        "ppa",
+        "other"
+      ],
+      "description": "\u05d0\u05d5\u05e4\u05df \u05de\u05d9\u05de\u05d5\u05df"
+    },
+    "assigned_agent": {
+      "type": "string",
+      "description": "\u05e1\u05d5\u05db\u05df \u05de\u05db\u05d9\u05e8\u05d5\u05ea"
+    },
+    "assigned_installer": {
+      "type": "string",
+      "description": "\u05de\u05ea\u05e7\u05d9\u05df"
+    },
+    "assigned_team": {
+      "type": "string",
+      "description": "\u05e6\u05d5\u05d5\u05ea"
+    },
+    "current_step": {
+      "type": "string",
+      "description": "\u05e9\u05dc\u05d1 \u05e0\u05d5\u05db\u05d7\u05d9"
+    },
+    "current_step_index": {
+      "type": "number",
+      "default": 0,
+      "description": "\u05d0\u05d9\u05e0\u05d3\u05e7\u05e1 \u05e9\u05dc\u05d1 \u05e0\u05d5\u05db\u05d7\u05d9"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "on_hold",
+        "completed",
+        "cancelled"
+      ],
+      "default": "active",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05ea\u05d7\u05dc\u05d4"
+    },
+    "installation_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05ea\u05e7\u05e0\u05d4"
+    },
+    "grid_connection_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d7\u05d9\u05d1\u05d5\u05e8 \u05dc\u05e8\u05e9\u05ea"
+    },
+    "estimated_completion": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05e6\u05e4\u05d9 \u05e1\u05d9\u05d5\u05dd"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05e1\u05d9\u05d5\u05dd \u05d1\u05e4\u05d5\u05e2\u05dc"
+    },
+    "permit_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d4\u05d9\u05ea\u05e8"
+    },
+    "grid_application_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d1\u05e7\u05e9\u05d4 \u05dc\u05d7\u05d1\u05e8\u05ea \u05d7\u05e9\u05de\u05dc"
+    },
+    "meter_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05de\u05d5\u05e0\u05d4"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea"
+    }
+  },
+  "required": [
+    "title",
+    "customer_name"
+  ]
+}

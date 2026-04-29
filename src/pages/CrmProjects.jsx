@@ -15,52 +15,111 @@ import { createPageUrl } from "../utils";
 
 const statusLabels = { active: "פעיל", on_hold: "מושהה", completed: "הושלם", cancelled: "בוטל" };
 const statusMap = { active: "in_progress", on_hold: "pending", completed: "completed", cancelled: "blocked" };
+const TYPE_LABELS = { residential: "פרטי", commercial: "מסחרי", industrial: "תעשייתי", agricultural: "חקלאי", tender: "מכרז" };
+const FINANCING_LABELS = { cash: "מזומן", loan: "הלוואה", leasing: "ליסינג", ppa: "PPA", other: "אחר" };
 
-const COLUMNS = [
-  { key: "title", label: "פרויקט" },
+const ALL_PROJECT_COLUMNS = [
+  { key: "title", label: "שם פרויקט" },
+  { key: "project_number", label: "מס' פרויקט" },
   { key: "customer_name", label: "לקוח" },
+  { key: "customer_phone", label: "טלפון לקוח" },
+  { key: "address", label: "כתובת" },
+  { key: "city", label: "עיר" },
+  { key: "type", label: "סוג פרויקט", type: "select", options: Object.entries(TYPE_LABELS).map(([v,l]) => ({ value: v, label: l })) },
   { key: "kwp", label: "kWp", type: "number" },
+  { key: "num_panels", label: "מס' פאנלים", type: "number" },
+  { key: "panel_brand", label: "יצרן פאנלים" },
+  { key: "inverter_brand", label: "יצרן מהפך" },
+  { key: "total_price", label: "מחיר כולל (₪)" },
+  { key: "price_per_kwp", label: "₪/kWp" },
+  { key: "financing_type", label: "מימון", type: "select", options: Object.entries(FINANCING_LABELS).map(([v,l]) => ({ value: v, label: l })) },
   { key: "current_step", label: "שלב נוכחי" },
   { key: "status", label: "סטטוס", type: "select", options: [
     { value: "active", label: "פעיל" }, { value: "on_hold", label: "מושהה" },
     { value: "completed", label: "הושלם" }, { value: "cancelled", label: "בוטל" },
   ]},
-  { key: "start_date", label: "התחלה", type: "date" },
+  { key: "assigned_agent", label: "סוכן" },
+  { key: "assigned_installer", label: "מתקין" },
+  { key: "start_date", label: "תאריך התחלה", type: "date" },
+  { key: "installation_date", label: "תאריך התקנה", type: "date" },
+  { key: "grid_connection_date", label: "חיבור לרשת", type: "date" },
+  { key: "estimated_completion", label: "צפי סיום", type: "date" },
+  { key: "permit_number", label: "מס' היתר" },
+  { key: "meter_number", label: "מס' מונה" },
 ];
+
+const DEFAULT_PROJECT_COLS = ["title", "customer_name", "city", "kwp", "total_price", "current_step", "assigned_agent", "status", "start_date"];
 
 const formFields = [
   { key: "title", label: "שם הפרויקט", placeholder: "שם" },
+  { key: "project_number", label: "מספר פרויקט", placeholder: "P-001" },
   { key: "customer_name", label: "שם לקוח", placeholder: "שם הלקוח" },
+  { key: "customer_phone", label: "טלפון לקוח", placeholder: "050-0000000" },
   { key: "customer_email", label: "אימייל לקוח", type: "email", placeholder: "email@example.com" },
-  { key: "type", label: "סוג", type: "select", options: [
-    { value: "residential", label: "פרטי" }, { value: "commercial", label: "מסחרי" }, { value: "tender", label: "מכרז" }
-  ]},
-  { key: "kwp", label: "kWp", type: "number", placeholder: "0" },
-  { key: "address", label: "כתובת", placeholder: "כתובת ההתקנה" },
+  { key: "type", label: "סוג פרויקט", type: "select", options: Object.entries(TYPE_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+  { key: "address", label: "כתובת התקנה", placeholder: "כתובת" },
+  { key: "city", label: "עיר", placeholder: "עיר" },
+  { key: "region", label: "אזור", placeholder: "אזור" },
+  { key: "kwp", label: "גודל מערכת (kWp)", type: "number", placeholder: "0" },
+  { key: "num_panels", label: "מספר פאנלים", type: "number", placeholder: "0" },
+  { key: "panel_brand", label: "יצרן פאנלים", placeholder: "לדוגמה: Longi" },
+  { key: "panel_model", label: "דגם פאנלים", placeholder: "דגם" },
+  { key: "inverter_brand", label: "יצרן מהפך", placeholder: "לדוגמה: Solarmax" },
+  { key: "inverter_model", label: "דגם מהפך", placeholder: "דגם" },
+  { key: "price_per_kwp", label: "מחיר ל-kWp (ללא מע\"מ)", type: "number", placeholder: "0" },
+  { key: "deposit_amount", label: "סכום מקדמה (₪)", type: "number", placeholder: "0" },
+  { key: "financing_type", label: "אופן מימון", type: "select", options: Object.entries(FINANCING_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+  { key: "assigned_agent", label: "סוכן מכירות", placeholder: "שם הסוכן" },
+  { key: "assigned_installer", label: "מתקין", placeholder: "שם המתקין" },
   { key: "start_date", label: "תאריך התחלה", type: "date" },
+  { key: "installation_date", label: "תאריך התקנה", type: "date" },
   { key: "estimated_completion", label: "צפי סיום", type: "date" },
+  { key: "permit_number", label: "מספר היתר", placeholder: "מס' היתר" },
+  { key: "grid_application_number", label: "מספר בקשה לחברת חשמל", placeholder: "מס' בקשה" },
+  { key: "meter_number", label: "מספר מונה", placeholder: "מס' מונה" },
+  { key: "notes", label: "הערות", type: "textarea", placeholder: "הערות" },
 ];
 
 const drawerSections = [
   { title: "פרטי פרויקט", fields: [
     { key: "title", label: "שם פרויקט" },
+    { key: "project_number", label: "מספר פרויקט" },
     { key: "customer_name", label: "לקוח" },
-    { key: "kwp", label: "kWp", type: "number" },
+    { key: "customer_phone", label: "טלפון לקוח" },
     { key: "address", label: "כתובת" },
-    { key: "type", label: "סוג", type: "select", options: [
-      { value: "residential", label: "פרטי" }, { value: "commercial", label: "מסחרי" }, { value: "tender", label: "מכרז" }
-    ]},
+    { key: "city", label: "עיר" },
+    { key: "type", label: "סוג", type: "select", options: Object.entries(TYPE_LABELS).map(([v,l]) => ({ value: v, label: l })) },
     { key: "status", label: "סטטוס", type: "select", options: [
       { value: "active", label: "פעיל" }, { value: "on_hold", label: "מושהה" },
       { value: "completed", label: "הושלם" }, { value: "cancelled", label: "בוטל" },
     ]},
   ]},
-  { title: "לוח זמנים ועלויות", fields: [
+  { title: "מערכת סולארית", fields: [
+    { key: "kwp", label: "kWp", type: "number" },
+    { key: "num_panels", label: "מס' פאנלים", type: "number" },
+    { key: "panel_brand", label: "יצרן פאנלים" },
+    { key: "panel_model", label: "דגם פאנלים" },
+    { key: "inverter_brand", label: "יצרן מהפך" },
+    { key: "inverter_model", label: "דגם מהפך" },
+  ]},
+  { title: "לוח זמנים", fields: [
     { key: "start_date", label: "תאריך התחלה", type: "date" },
+    { key: "installation_date", label: "תאריך התקנה", type: "date" },
+    { key: "grid_connection_date", label: "חיבור לרשת", type: "date" },
     { key: "estimated_completion", label: "צפי סיום", type: "date" },
     { key: "current_step", label: "שלב נוכחי", readOnly: true },
-    { key: "price_per_kwp", label: "מחיר לkWp (ללא מע״מ)", type: "number" },
-    { label: "מחיר כולל", readOnly: true, render: r => r.total_price ? `₪${r.total_price.toLocaleString()}` : '—' },
+  ]},
+  { title: "כספים ומסמכים", fields: [
+    { key: "price_per_kwp", label: "מחיר ל-kWp (ללא מע\"מ)", type: "number" },
+    { label: "מחיר כולל (כולל מע\"מ)", readOnly: true, render: r => r.total_price ? `₪${r.total_price.toLocaleString()}` : '—' },
+    { key: "deposit_amount", label: "מקדמה (₪)", type: "number" },
+    { key: "financing_type", label: "מימון", type: "select", options: Object.entries(FINANCING_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+    { key: "permit_number", label: "מס' היתר" },
+    { key: "grid_application_number", label: "מס' בקשה חברת חשמל" },
+    { key: "meter_number", label: "מס' מונה" },
+  ]},
+  { title: "הערות", fields: [
+    { key: "notes", label: "הערות", type: "textarea" },
   ]},
 ];
 
@@ -107,15 +166,36 @@ export default function CrmProjects() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['crm-projects'] }); setEditingId(null); },
   });
 
+  const [visibleCols, setVisibleCols] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("projects_columns") || "null") || DEFAULT_PROJECT_COLS; } catch { return DEFAULT_PROJECT_COLS; }
+  });
+
   const filtered = projects.filter(p =>
-    !search || p.title?.includes(search) || p.customer_name?.includes(search) || p.address?.includes(search)
+    !search || p.title?.includes(search) || p.customer_name?.includes(search) ||
+    p.address?.includes(search) || p.city?.includes(search) || p.project_number?.includes(search)
   );
+
+  const activeColumns = ALL_PROJECT_COLUMNS.filter(c => visibleCols.includes(c.key));
+
+  function renderProjectCell(col, project) {
+    switch (col.key) {
+      case "status": return <StatusBadge status={statusMap[project.status]} label={statusLabels[project.status]} />;
+      case "type": return <span className="text-gray-300 text-xs">{TYPE_LABELS[project.type] || project.type || "—"}</span>;
+      case "financing_type": return <span className="text-gray-300 text-xs">{FINANCING_LABELS[project.financing_type] || project.financing_type || "—"}</span>;
+      case "kwp": return project.kwp ? <span className="text-[#2dd4a8] font-semibold">{project.kwp}</span> : <span className="text-gray-600">—</span>;
+      case "total_price": return project.total_price ? <span className="text-amber-400 font-semibold">₪{project.total_price.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
+      case "price_per_kwp": return project.price_per_kwp ? <span className="text-gray-300">₪{project.price_per_kwp.toLocaleString()}</span> : <span className="text-gray-600">—</span>;
+      case "start_date": case "installation_date": case "grid_connection_date": case "estimated_completion":
+        return project[col.key] ? <span className="text-gray-400 text-xs">{new Date(project[col.key]).toLocaleDateString('he-IL')}</span> : <span className="text-gray-600">—</span>;
+      default: return <span className="text-gray-200 text-sm">{project[col.key] || "—"}</span>;
+    }
+  }
 
   return (
     <div className="p-4 lg:p-6 space-y-4" dir="rtl">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-bold text-white">פרויקטים</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="חיפוש..."
@@ -127,13 +207,17 @@ export default function CrmProjects() {
         </div>
       </div>
 
+      <div className="flex items-center gap-2 text-xs text-gray-500">
+        <span>{filtered.length} פרויקטים</span>
+      </div>
+
       {isLoading ? <SkeletonCard lines={5} /> : (
         <div className="rounded-2xl overflow-hidden border border-[rgba(45,212,168,0.08)]" style={{ background: '#0d1f26' }}>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[rgba(45,212,168,0.08)]" style={{ background: '#0f2229' }}>
-                  {COLUMNS.map(col => (
+                  {activeColumns.map(col => (
                     <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
@@ -143,27 +227,22 @@ export default function CrmProjects() {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={COLUMNS.length + 1} className="text-center py-10 text-gray-600">אין פרויקטים</td></tr>
+                  <tr><td colSpan={activeColumns.length + 1} className="text-center py-10 text-gray-600">אין פרויקטים</td></tr>
                 )}
                 {filtered.map(project => (
                   editingId === project.id ? (
-                    <QuickEditRow key={project.id} record={project} columns={COLUMNS}
+                    <QuickEditRow key={project.id} record={project} columns={activeColumns}
                       onSave={data => updateMutation.mutate({ id: project.id, data })}
                       onCancel={() => setEditingId(null)} />
                   ) : (
                     <tr key={project.id}
                       onClick={() => navigate(createPageUrl(`ProjectCard?id=${project.id}`))}
                       className="group border-b border-[rgba(45,212,168,0.05)] hover:bg-[rgba(45,212,168,0.03)] transition-colors cursor-pointer">
-                      <td className="px-4 py-3 text-sm text-white font-medium">{project.title}</td>
-                      <td className="px-4 py-3 text-sm text-gray-300">{project.customer_name}</td>
-                      <td className="px-4 py-3 text-sm text-[#2dd4a8] font-semibold">{project.kwp || '—'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-400">{project.current_step || '—'}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={statusMap[project.status]} label={statusLabels[project.status]} />
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-400">
-                        {project.start_date ? new Date(project.start_date).toLocaleDateString('he-IL') : '—'}
-                      </td>
+                      {activeColumns.map(col => (
+                        <td key={col.key} className="px-4 py-3 whitespace-nowrap">
+                          {renderProjectCell(col, project)}
+                        </td>
+                      ))}
                       <td className="px-3 py-3">
                         <RowActions
                           onOpen={e => { e.stopPropagation(); navigate(createPageUrl(`ProjectCard?id=${project.id}`)); }}
