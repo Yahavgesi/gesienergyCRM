@@ -48,6 +48,8 @@ const crmNav = [
     { name: "מחסן", icon: Warehouse, page: "CrmInventory" },
   ]},
   { section: "דוחות", items: [
+    { name: "ביצועי סוכנים", icon: TrendingUp, page: "CrmAgentPerformance" },
+    { name: "לוח שנה", icon: Calendar, page: "CrmCalendar" },
     { name: "דוחות כלליים", icon: BarChart3, page: "CrmReportsHub" },
     { name: "פיננסי", icon: TrendingUp, page: "CrmFinancials" },
   ]},

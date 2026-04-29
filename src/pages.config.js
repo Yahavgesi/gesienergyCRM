@@ -69,6 +69,8 @@ import CrmDashboard from './pages/CrmDashboard';
 import CrmDeals from './pages/CrmDeals';
 import CrmDocuments from './pages/CrmDocuments';
 import CrmLeads from './pages/CrmLeads';
+import CrmAgentPerformance from './pages/CrmAgentPerformance';
+import CrmCalendar from './pages/CrmCalendar';
 import CrmPayments from './pages/CrmPayments';
 import CrmProducts from './pages/CrmProducts';
 import CrmProjects from './pages/CrmProjects';
@@ -112,6 +114,8 @@ export const PAGES = {
     "CrmDeals": CrmDeals,
     "CrmDocuments": CrmDocuments,
     "CrmLeads": CrmLeads,
+    "CrmAgentPerformance": CrmAgentPerformance,
+    "CrmCalendar": CrmCalendar,
     "CrmPayments": CrmPayments,
     "CrmProducts": CrmProducts,
     "CrmProjects": CrmProjects,
