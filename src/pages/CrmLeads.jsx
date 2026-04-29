@@ -357,7 +357,7 @@ export default function CrmLeads() {
                         <div className="flex items-center gap-1">
                           <button title="הוסף תזכורת"
                             onClick={e => { e.stopPropagation(); setReminderLead(lead); }}
-                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-amber-50 text-slate-400 hover:text-amber-500 transition-all">
+                            className="p-1.5 rounded-lg hover:bg-amber-50 text-slate-400 hover:text-amber-500 transition-all">
                             <Bell className="w-4 h-4" />
                           </button>
                           <LeadRowActions lead={lead}

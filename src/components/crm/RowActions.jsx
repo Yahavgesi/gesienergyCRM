@@ -4,7 +4,7 @@ import { ExternalLink, Edit2, PanelRight } from "lucide-react";
 export default function RowActions({ onOpen, onEdit, onDrawer }) {
   return (
     <div
-      className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      className="flex items-center gap-1"
       onClick={e => e.stopPropagation()}
     >
       <button
