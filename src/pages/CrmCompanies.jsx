@@ -108,12 +108,12 @@ export default function CrmCompanies() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[rgba(45,212,168,0.08)]" style={{ background: '#0f2229' }}>
+                  <th className="px-4 py-3 w-28" />
                   {COLUMNS.map(col => (
                     <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
                   ))}
-                  <th className="px-4 py-3 w-28" />
                 </tr>
               </thead>
               <tbody>
@@ -129,6 +129,13 @@ export default function CrmCompanies() {
                     <tr key={company.id}
                       onClick={() => navigate(createPageUrl(`CompanyCard/${company.id}`))}
                       className="group border-b border-[rgba(45,212,168,0.05)] hover:bg-[rgba(45,212,168,0.03)] transition-colors cursor-pointer">
+                      <td className="px-3 py-3">
+                        <RowActions
+                          onOpen={e => { e.stopPropagation(); navigate(createPageUrl(`CompanyCard/${company.id}`)); }}
+                          onEdit={e => { e.stopPropagation(); setEditingId(company.id); }}
+                          onDrawer={e => { e.stopPropagation(); setDrawerRecord(company); }}
+                        />
+                      </td>
                       <td className="px-4 py-3 text-sm text-white font-medium">{company.name}</td>
                       <td className="px-4 py-3 text-sm text-gray-400">{company.business_number || '—'}</td>
                       <td className="px-4 py-3 text-sm text-gray-300">{company.phone || '—'}</td>
@@ -138,13 +145,6 @@ export default function CrmCompanies() {
                         <StatusBadge status={statusMap[company.status]} label={statusLabels[company.status]} />
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-400">{company.assigned_agent || '—'}</td>
-                      <td className="px-3 py-3">
-                        <RowActions
-                          onOpen={e => { e.stopPropagation(); navigate(createPageUrl(`CompanyCard/${company.id}`)); }}
-                          onEdit={e => { e.stopPropagation(); setEditingId(company.id); }}
-                          onDrawer={e => { e.stopPropagation(); setDrawerRecord(company); }}
-                        />
-                      </td>
                     </tr>
                   )
                 ))}

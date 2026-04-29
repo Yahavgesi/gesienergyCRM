@@ -200,12 +200,12 @@ export default function CrmContacts() {
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ background: '#f1f7fb', borderColor: '#d1e3ec' }}>
+                  <th className="px-4 py-3 w-28" />
                   {activeColumns.map(col => (
                     <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
                   ))}
-                  <th className="px-4 py-3 w-28" />
                 </tr>
               </thead>
               <tbody>
@@ -221,11 +221,6 @@ export default function CrmContacts() {
                     <tr key={contact.id}
                       onClick={() => navigate(createPageUrl(`ContactCard?id=${contact.id}`))}
                       className="group border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
-                      {activeColumns.map(col => (
-                        <td key={col.key} className="px-4 py-3 whitespace-nowrap">
-                          {renderContactCell(col, contact)}
-                        </td>
-                      ))}
                       <td className="px-3 py-3">
                         <RowActions
                           onOpen={e => { e.stopPropagation(); navigate(createPageUrl(`ContactCard?id=${contact.id}`)); }}
@@ -233,6 +228,11 @@ export default function CrmContacts() {
                           onDrawer={e => { e.stopPropagation(); setDrawerRecord(contact); }}
                         />
                       </td>
+                      {activeColumns.map(col => (
+                        <td key={col.key} className="px-4 py-3 whitespace-nowrap">
+                          {renderContactCell(col, contact)}
+                        </td>
+                      ))}
                     </tr>
                   )
                 ))}

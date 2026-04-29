@@ -330,12 +330,12 @@ export default function CrmLeads() {
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ background: '#f1f7fb', borderColor: '#d1e3ec' }}>
+                  <th className="px-4 py-3 w-32" />
                   {activeColumns.map(col => (
                     <th key={col.key} className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
                       {col.label}
                     </th>
                   ))}
-                  <th className="px-4 py-3 w-32" />
                 </tr>
               </thead>
               <tbody>
@@ -353,13 +353,8 @@ export default function CrmLeads() {
                     <tr key={lead.id}
                       onClick={() => navigate(createPageUrl(`LeadCard?id=${lead.id}`))}
                       className={`group border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer ${rowBg}`}>
-                      {activeColumns.map(col => (
-                        <td key={col.key} className="px-4 py-3 text-sm whitespace-nowrap">
-                          {renderCell(col, lead)}
-                        </td>
-                      ))}
                       <td className="px-3 py-3">
-                        <div className="flex items-center justify-end gap-1">
+                        <div className="flex items-center gap-1">
                           <button title="הוסף תזכורת"
                             onClick={e => { e.stopPropagation(); setReminderLead(lead); }}
                             className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-amber-50 text-slate-400 hover:text-amber-500 transition-all">
@@ -370,6 +365,11 @@ export default function CrmLeads() {
                             onOpenDrawer={(l) => setDrawerLead(l)} />
                         </div>
                       </td>
+                      {activeColumns.map(col => (
+                        <td key={col.key} className="px-4 py-3 text-sm whitespace-nowrap">
+                          {renderCell(col, lead)}
+                        </td>
+                      ))}
                     </tr>
                   );
                 })}
