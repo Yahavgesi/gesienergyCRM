@@ -27,6 +27,15 @@ import { toast } from "sonner";
 
 const TAB_STYLE = "data-[state=active]:bg-transparent data-[state=active]:text-[#2dd4a8] data-[state=active]:border-b-2 data-[state=active]:border-[#2dd4a8] rounded-none px-4 py-3 text-sm whitespace-nowrap";
 
+const TYPE_LABELS = {
+  residential: "מערכת ביתית",
+  commercial: "מערכת מסחרית",
+  commercial_storage: "מערכת מסחרית + אגירה",
+  residential_storage: "מערכת ביתית + אגירה",
+  storage_only: "מתקן אגירה",
+};
+const ENGAGEMENT_LABELS = { purchase: "רכישה", entrepreneurship: "יזמות", partnership: "שותפות" };
+
 export default function ProjectCard() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
@@ -272,7 +281,8 @@ export default function ProjectCard() {
                   <InfoRow label="מחיר לkWp (עם מע״מ)" value={project.price_per_kwp_with_vat ? `₪${project.price_per_kwp_with_vat.toLocaleString()}` : '—'} />
                   <InfoRow label="מחיר כולל" value={project.total_price ? `₪${project.total_price.toLocaleString()}` : '—'} />
                   <InfoRow label="כתובת" value={project.address} />
-                  <InfoRow label="סוג" value={{ residential: 'פרטי', commercial: 'מסחרי', tender: 'מכרז' }[project.type] || project.type} />
+                  <InfoRow label="סוג פרויקט" value={TYPE_LABELS[project.type] || project.type} />
+                  <InfoRow label="סוג התקשרות" value={ENGAGEMENT_LABELS[project.engagement_type] || project.engagement_type} />
                   <InfoRow label="תחילה" value={project.start_date ? new Date(project.start_date).toLocaleDateString('he-IL') : '—'} />
                   <InfoRow label="צפי סיום" value={project.estimated_completion ? new Date(project.estimated_completion).toLocaleDateString('he-IL') : '—'} />
                 </div>
@@ -474,8 +484,10 @@ export default function ProjectCard() {
       <FormModal open={editOpen} onClose={() => setEditOpen(false)} title="ערוך פרויקט"
         fields={[
           { key: 'title', label: 'שם פרויקט', type: 'text' },
-          { key: 'kwp', label: 'kWp', type: 'number' },
-          { key: 'price_per_kwp', label: 'מחיר לkWp (ללא מע״מ)', type: 'number' },
+          { key: 'type', label: 'סוג פרויקט', type: 'select', options: Object.entries(TYPE_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+          { key: 'engagement_type', label: 'סוג התקשרות', type: 'select', options: Object.entries(ENGAGEMENT_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+          { key: 'kwp', label: 'גודל מערכת (kWp)', type: 'number' },
+          { key: 'price_per_kwp', label: 'מחיר לkWp (ללא מע״מ) ₪', type: 'number' },
           { key: 'address', label: 'כתובת', type: 'text' },
           { key: 'status', label: 'סטטוס', type: 'select', options: [
             { value: 'active', label: 'פעיל' }, { value: 'on_hold', label: 'מושהה' },
@@ -485,9 +497,12 @@ export default function ProjectCard() {
           { key: 'estimated_completion', label: 'צפי סיום', type: 'date' },
         ]}
         data={editData} setData={(d) => {
-          if (d.price_per_kwp && d.kwp) {
-            d.price_per_kwp_with_vat = Math.round(parseFloat(d.price_per_kwp) * 1.18);
-            d.total_price = Math.round(d.price_per_kwp_with_vat * parseFloat(d.kwp));
+          const kwp = parseFloat(d.kwp) || 0;
+          const pricePerKwp = parseFloat(d.price_per_kwp) || 0;
+          if (kwp > 0 && pricePerKwp > 0) {
+            d.price_per_kwp_with_vat = Math.round(pricePerKwp * 1.18);
+            d.total_price_no_vat = Math.round(pricePerKwp * kwp);
+            d.total_price = Math.round(d.price_per_kwp_with_vat * kwp);
           }
           setEditData(d);
         }}
