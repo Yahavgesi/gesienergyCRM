@@ -242,7 +242,7 @@ export default function ProjectCard() {
             <TabsList className="bg-transparent w-full justify-start px-4 py-0 h-auto min-w-max">
               <TabsTrigger value="overview" className={TAB_STYLE}>סקירה</TabsTrigger>
               <TabsTrigger value="steps" className={TAB_STYLE}>שלבים</TabsTrigger>
-              <TabsTrigger value="milestones" className={TAB_STYLE}>אבני דרך 💰</TabsTrigger>
+              <TabsTrigger value="milestones" className={TAB_STYLE}>הכנסות פרויקט 💰</TabsTrigger>
               <TabsTrigger value="expenses" className={TAB_STYLE}>הוצאות</TabsTrigger>
               <TabsTrigger value="documents" className={TAB_STYLE}>מסמכים</TabsTrigger>
               <TabsTrigger value="payments" className={TAB_STYLE}>תשלומים</TabsTrigger>

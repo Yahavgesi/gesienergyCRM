@@ -15,7 +15,14 @@ import { createPageUrl } from "../utils";
 
 const statusLabels = { active: "פעיל", on_hold: "מושהה", completed: "הושלם", cancelled: "בוטל" };
 const statusMap = { active: "in_progress", on_hold: "pending", completed: "completed", cancelled: "blocked" };
-const TYPE_LABELS = { residential: "פרטי", commercial: "מסחרי", industrial: "תעשייתי", agricultural: "חקלאי", tender: "מכרז" };
+const TYPE_LABELS = {
+  residential: "מערכת ביתית",
+  commercial: "מערכת מסחרית",
+  commercial_storage: "מערכת מסחרית + אגירה",
+  residential_storage: "מערכת ביתית + אגירה",
+  storage_only: "מתקן אגירה",
+};
+const ENGAGEMENT_LABELS = { purchase: "רכישה", entrepreneurship: "יזמות", partnership: "שותפות" };
 const FINANCING_LABELS = { cash: "מזומן", loan: "הלוואה", leasing: "ליסינג", ppa: "PPA", other: "אחר" };
 
 const ALL_PROJECT_COLUMNS = [
@@ -57,6 +64,7 @@ const formFields = [
   { key: "customer_phone", label: "טלפון לקוח", placeholder: "050-0000000" },
   { key: "customer_email", label: "אימייל לקוח", type: "email", placeholder: "email@example.com" },
   { key: "type", label: "סוג פרויקט", type: "select", options: Object.entries(TYPE_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+  { key: "engagement_type", label: "סוג התקשרות", type: "select", options: Object.entries(ENGAGEMENT_LABELS).map(([v,l]) => ({ value: v, label: l })) },
   { key: "address", label: "כתובת התקנה", placeholder: "כתובת" },
   { key: "city", label: "עיר", placeholder: "עיר" },
   { key: "region", label: "אזור", placeholder: "אזור" },
@@ -89,6 +97,7 @@ const drawerSections = [
     { key: "address", label: "כתובת" },
     { key: "city", label: "עיר" },
     { key: "type", label: "סוג", type: "select", options: Object.entries(TYPE_LABELS).map(([v,l]) => ({ value: v, label: l })) },
+    { key: "engagement_type", label: "סוג התקשרות", type: "select", options: Object.entries(ENGAGEMENT_LABELS).map(([v,l]) => ({ value: v, label: l })) },
     { key: "status", label: "סטטוס", type: "select", options: [
       { value: "active", label: "פעיל" }, { value: "on_hold", label: "מושהה" },
       { value: "completed", label: "הושלם" }, { value: "cancelled", label: "בוטל" },
@@ -181,6 +190,7 @@ export default function CrmProjects() {
     switch (col.key) {
       case "status": return <StatusBadge status={statusMap[project.status]} label={statusLabels[project.status]} />;
       case "type": return <span className="text-slate-500 text-xs">{TYPE_LABELS[project.type] || project.type || "—"}</span>;
+      case "engagement_type": return <span className="text-slate-500 text-xs">{ENGAGEMENT_LABELS[project.engagement_type] || project.engagement_type || "—"}</span>;
       case "financing_type": return <span className="text-slate-500 text-xs">{FINANCING_LABELS[project.financing_type] || project.financing_type || "—"}</span>;
       case "kwp": return project.kwp ? <span className="text-[#0ea5a0] font-semibold">{project.kwp}</span> : <span className="text-slate-300">—</span>;
       case "total_price": return project.total_price ? <span className="text-amber-600 font-semibold">₪{project.total_price.toLocaleString()}</span> : <span className="text-slate-300">—</span>;
