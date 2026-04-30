@@ -88,6 +88,7 @@ import Home from './pages/Home';
 import LeadCard from './pages/LeadCard';
 import ProjectCard from './pages/ProjectCard';
 import SystemFolder from './pages/SystemFolder';
+import CrmPerformanceAnalytics from './pages/CrmPerformanceAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -133,6 +134,7 @@ export const PAGES = {
     "LeadCard": LeadCard,
     "ProjectCard": ProjectCard,
     "SystemFolder": SystemFolder,
+    "CrmPerformanceAnalytics": CrmPerformanceAnalytics,
 }
 
 export const pagesConfig = {
