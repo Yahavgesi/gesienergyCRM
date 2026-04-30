@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../../utils";
-import { X, Phone, Mail, MapPin, Zap, ExternalLink, TrendingUp, Edit2, Check } from "lucide-react";
+import { X, ExternalLink, Edit2, Check, MessageSquare, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const STAGE_LABELS = {
   new_lead: "ליד חדש", initial_contact: "יצירת קשר", site_survey: "סיור באתר",
@@ -32,10 +33,14 @@ export default function LeadSideDrawer({ lead, onClose }) {
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState({});
   const [saving, setSaving] = useState(false);
+  const [newNote, setNewNote] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
+  const [selectedStage, setSelectedStage] = useState("");
 
   if (!lead) return null;
 
-  const stageColor = STAGE_COLORS[lead.sales_stage] || "#64748b";
+  const currentStage = selectedStage || lead.sales_stage;
+  const stageColor = STAGE_COLORS[currentStage] || "#64748b";
   const current = editMode ? { ...lead, ...draft } : lead;
 
   const set = (key, val) => setDraft(p => ({ ...p, [key]: val }));
@@ -47,6 +52,37 @@ export default function LeadSideDrawer({ lead, onClose }) {
     setSaving(false);
     setEditMode(false);
     setDraft({});
+  };
+
+  const handleStageChange = async (stage) => {
+    if (!stage || stage === lead.sales_stage) return;
+    await base44.entities.Lead.update(lead.id, { sales_stage: stage });
+    const user = await base44.auth.me();
+    await base44.entities.ActivityLog.create({
+      entity_type: 'lead', entity_id: lead.id,
+      action_type: 'stage_change',
+      description: `שלב עודכן: ${STAGE_LABELS[lead.sales_stage] || lead.sales_stage} ← ${STAGE_LABELS[stage] || stage}`,
+      actor_email: user.email, actor_name: user.full_name || user.email,
+    });
+    queryClient.invalidateQueries({ queryKey: ['crm-leads'] });
+    setSelectedStage(stage);
+    toast.success('שלב עודכן ✓');
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+    setSavingNote(true);
+    const user = await base44.auth.me();
+    await base44.entities.ActivityLog.create({
+      entity_type: 'lead', entity_id: lead.id,
+      action_type: 'note_added',
+      description: newNote.trim(),
+      actor_email: user.email, actor_name: user.full_name || user.email,
+    });
+    queryClient.invalidateQueries({ queryKey: ['activities', 'lead', lead.id] });
+    setNewNote("");
+    setSavingNote(false);
+    toast.success('הערה נשמרה ✓');
   };
 
   return (
@@ -76,7 +112,7 @@ export default function LeadSideDrawer({ lead, onClose }) {
                   <h3 className="text-white font-bold text-base leading-tight">{lead.full_name}</h3>
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block"
                     style={{ background: `${stageColor}20`, color: stageColor }}>
-                    {STAGE_LABELS[lead.sales_stage] || "—"}
+                    {STAGE_LABELS[currentStage] || "—"}
                   </span>
                 </div>
               </div>
@@ -192,9 +228,45 @@ export default function LeadSideDrawer({ lead, onClose }) {
                 <Row label="נוצר" value={lead.created_date ? new Date(lead.created_date).toLocaleDateString('he-IL') : '—'} />
               </div>
 
-              {/* Notes */}
+              {/* Stage switcher */}
               <div className="rounded-xl bg-[#142e38]/60 p-3">
-                <p className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-2">הערות</p>
+                <p className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-2">העבר שלב</p>
+                <Select value={currentStage} onValueChange={handleStageChange}>
+                  <SelectTrigger className="h-9 text-xs bg-[#0a1a1f] border-[rgba(45,212,168,0.2)] text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#142e38] border-[rgba(45,212,168,0.15)]">
+                    {Object.entries(STAGE_LABELS).map(([v, l]) => (
+                      <SelectItem key={v} value={v} className="text-xs text-gray-300">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full inline-block" style={{ background: STAGE_COLORS[v] }} />
+                          {l}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Quick note */}
+              <div className="rounded-xl bg-[#142e38]/60 p-3">
+                <p className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-2">הוסף הערה מהירה</p>
+                <textarea
+                  value={newNote}
+                  onChange={e => setNewNote(e.target.value)}
+                  placeholder="כתוב הערה..."
+                  className="w-full bg-[#0a1a1f] border border-[rgba(45,212,168,0.2)] rounded-md text-white text-xs p-2 min-h-[60px] resize-none mb-2"
+                />
+                <Button size="sm" onClick={handleAddNote} disabled={!newNote.trim() || savingNote}
+                  className="w-full h-7 text-xs bg-[#2dd4a8]/10 hover:bg-[#2dd4a8]/20 text-[#2dd4a8] border border-[#2dd4a8]/20">
+                  <MessageSquare className="w-3.5 h-3.5 ml-1" />
+                  {savingNote ? 'שומר...' : 'שמור הערה'}
+                </Button>
+              </div>
+
+              {/* Notes (edit) */}
+              <div className="rounded-xl bg-[#142e38]/60 p-3">
+                <p className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-2">הערות פנימיות</p>
                 {editMode
                   ? <textarea value={draft.notes ?? lead.notes ?? ''} onChange={e => set('notes', e.target.value)}
                       className="w-full bg-[#0a1a1f] border border-[rgba(45,212,168,0.2)] rounded-md text-white text-xs p-2 min-h-[60px] resize-none" />

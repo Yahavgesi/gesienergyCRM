@@ -412,6 +412,16 @@ export default function CrmProjects() {
         subtitleColor={drawerRecord?.status === 'completed' ? '#2dd4a8' : drawerRecord?.status === 'active' ? '#60a5fa' : '#94a3b8'}
         avatar={r => r.title?.[0] || 'P'}
         sections={drawerSections} cardPage="ProjectCard"
+        stageConfig={{
+          field: 'status',
+          options: [
+            { value: 'active', label: 'פעיל', color: '#60a5fa' },
+            { value: 'on_hold', label: 'מושהה', color: '#94a3b8' },
+            { value: 'completed', label: 'הושלם', color: '#2dd4a8' },
+            { value: 'cancelled', label: 'בוטל', color: '#ef4444' },
+          ]
+        }}
+        activityEntity="project"
       />
 
       <FormModal open={showForm} onClose={setShowForm} title="פרויקט חדש" fields={formFields}

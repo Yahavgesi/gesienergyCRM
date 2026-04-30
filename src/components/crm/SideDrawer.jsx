@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Edit2, Check } from "lucide-react";
+import { X, ExternalLink, Edit2, Check, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../../utils";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
 const inputCls = "h-8 text-xs bg-[#0a1a1f] border-[rgba(45,212,168,0.2)] text-white";
 
@@ -23,15 +25,23 @@ const inputCls = "h-8 text-xs bg-[#0a1a1f] border-[rgba(45,212,168,0.2)] text-wh
  *   avatar        - fn(record) => letter
  *   avatarColor   - hex
  */
+/**
+ * stageConfig: { field, options: [{value, label, color}] }
+ * activityConfig: { entity_type, entity_id_field? } — for logging notes
+ */
 export default function SideDrawer({
   record, onClose, onSave,
   title, subtitle, subtitleColor = "#2dd4a8",
   sections = [], cardPage, avatar, avatarColor = "#2dd4a8",
+  stageConfig, activityEntity,
 }) {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState({});
   const [saving, setSaving] = useState(false);
+  const [newNote, setNewNote] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
+  const [currentStageVal, setCurrentStageVal] = useState("");
 
   if (!record) return null;
 
@@ -48,6 +58,41 @@ export default function SideDrawer({
     setSaving(false);
     setEditMode(false);
     setDraft({});
+  };
+
+  const handleStageChange = async (val) => {
+    if (!stageConfig || !record || !onSave) return;
+    setCurrentStageVal(val);
+    await onSave({ [stageConfig.field]: val });
+    if (activityEntity) {
+      try {
+        const user = await base44.auth.me();
+        const oldLabel = stageConfig.options.find(o => o.value === record[stageConfig.field])?.label || record[stageConfig.field];
+        const newLabel = stageConfig.options.find(o => o.value === val)?.label || val;
+        await base44.entities.ActivityLog.create({
+          entity_type: activityEntity, entity_id: record.id,
+          action_type: 'stage_change',
+          description: `סטטוס עודכן: ${oldLabel} ← ${newLabel}`,
+          actor_email: user.email, actor_name: user.full_name || user.email,
+        });
+      } catch (_) {}
+    }
+    toast.success('סטטוס עודכן ✓');
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim() || !activityEntity) return;
+    setSavingNote(true);
+    const user = await base44.auth.me();
+    await base44.entities.ActivityLog.create({
+      entity_type: activityEntity, entity_id: record.id,
+      action_type: 'note_added',
+      description: newNote.trim(),
+      actor_email: user.email, actor_name: user.full_name || user.email,
+    });
+    setNewNote("");
+    setSavingNote(false);
+    toast.success('הערה נשמרה ✓');
   };
 
   const goToCard = () => {
@@ -174,6 +219,47 @@ export default function SideDrawer({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
+
+          {/* Stage switcher */}
+          {stageConfig && (
+            <div className="rounded-xl bg-[#142e38]/60 p-3">
+              <p className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-2">שינוי סטטוס/שלב</p>
+              <Select value={currentStageVal || record[stageConfig.field] || ''} onValueChange={handleStageChange}>
+                <SelectTrigger className="h-9 text-xs bg-[#0a1a1f] border-[rgba(45,212,168,0.2)] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#142e38] border-[rgba(45,212,168,0.15)]">
+                  {stageConfig.options.map(o => (
+                    <SelectItem key={o.value} value={o.value} className="text-xs text-gray-300">
+                      <span className="flex items-center gap-2">
+                        {o.color && <span className="w-2 h-2 rounded-full inline-block" style={{ background: o.color }} />}
+                        {o.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Quick note */}
+          {activityEntity && (
+            <div className="rounded-xl bg-[#142e38]/60 p-3">
+              <p className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-2">הוסף הערה מהירה</p>
+              <textarea
+                value={newNote}
+                onChange={e => setNewNote(e.target.value)}
+                placeholder="כתוב הערה..."
+                className="w-full bg-[#0a1a1f] border border-[rgba(45,212,168,0.2)] rounded-md text-white text-xs p-2 min-h-[55px] resize-none mb-2"
+              />
+              <Button size="sm" onClick={handleAddNote} disabled={!newNote.trim() || savingNote}
+                className="w-full h-7 text-xs bg-[#2dd4a8]/10 hover:bg-[#2dd4a8]/20 text-[#2dd4a8] border border-[#2dd4a8]/20">
+                <MessageSquare className="w-3.5 h-3.5 ml-1" />
+                {savingNote ? 'שומר...' : 'שמור הערה'}
+              </Button>
+            </div>
+          )}
+
           {sections.map((section, si) => (
             <div key={si} className="rounded-xl bg-[#142e38]/60 p-3">
               {section.title && (
@@ -184,6 +270,7 @@ export default function SideDrawer({
               </div>
             </div>
           ))}
+        
         </div>
 
         {/* Footer */}
